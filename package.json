@@ -1,0 +1,12 @@
+{
+  "name": "innovation-tracker",
+  "version": "1.0.0",
+  "description": "Innovation Team 2026 Performance Tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
