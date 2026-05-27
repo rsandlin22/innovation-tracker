@@ -490,6 +490,36 @@
   .empty { text-align: center; padding: 3rem 1rem; color: var(--text-faint); font-size: 14px; }
   .empty i { font-size: 28px; display: block; margin-bottom: 10px; opacity: 0.4; }
 
+  /* Team tags */
+  .team-tag { display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:0.3px;white-space:nowrap; }
+  .team-innovation { background:#EDE9FB;color:#4A3FA0; }
+  .team-osst { background:#D8F0E6;color:#145C38; }
+  .team-hs { background:#DDEAF8;color:#174E8A; }
+  .team-pm { background:#FDE8EF;color:#7A1A3C; }
+  .team-leadership { background:#FEF1D8;color:#6B3E06; }
+  .team-accountability { background:#F0EAD6;color:#5C4A1A; }
+
+  /* Member roster grid on dashboard */
+  .roster-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1.5rem; }
+  .roster-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow); }
+  .roster-info { flex:1;min-width:0; }
+  .roster-name { font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .roster-tags { display:flex;gap:4px;flex-wrap:wrap;margin-top:3px; }
+
+  /* Notes history */
+  .note-item { border-left: 2px solid var(--border); padding: 5px 10px; margin-bottom: 6px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .note-ts { font-size: 11px; color: var(--text-faint); font-weight: 600; }
+  .note-text { font-size: 13px; margin-top: 2px; color: var(--text); line-height: 1.5; }
+  .notes-list { max-height: 160px; overflow-y: auto; margin-bottom: 4px; }
+  .notes-empty { font-size: 12px; color: var(--text-faint); padding: 4px 0 6px; }
+  .notes-section-hdr { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .note-add-row { display: flex; gap: 8px; align-items: flex-start; margin-top: 6px; }
+  .note-input { flex: 1; height: 52px; font-size: 12px; font-family: 'DM Sans', sans-serif; padding: 6px 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); resize: none; outline: none; line-height: 1.5; transition: border-color .15s; }
+  .note-input:focus { border-color: var(--border-strong); background: var(--surface); }
+  .note-add-btn { height: 52px; padding: 0 12px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 600; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
+  .note-add-btn:hover { background: var(--bg); border-color: var(--border-strong); }
+  .update-notes-strip { grid-column: 1 / -1; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+
   /* Responsive */
   @media (max-width: 768px) {
     .header-inner { flex-direction: column; align-items: flex-start; gap: 0; }
@@ -527,7 +557,7 @@
   <div id="tab-goals" class="section">
     <div class="toolbar">
       <div class="toolbar-left">
-        <select class="filter-select" id="goals-filter-owner" onchange="renderGoals()"><option value="">All team members</option></select>
+        <select class="filter-select" id="goals-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
         <select class="filter-select" id="goals-filter-status" onchange="renderGoals()">
           <option value="">All statuses</option>
           <option value="not-started">Not started</option>
@@ -535,6 +565,16 @@
           <option value="at-risk">At risk</option>
           <option value="done">Done</option>
         </select>
+        <select class="filter-select" id="goals-filter-team" onchange="renderGoals()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearGoalsFilters()">Clear filters</button>
       </div>
       <button class="btn btn-primary" onclick="openModal('goal')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Goal</button>
     </div>
@@ -544,7 +584,7 @@
   <div id="tab-rocks" class="section">
     <div class="toolbar">
       <div class="toolbar-left">
-        <select class="filter-select" id="rocks-filter-owner" onchange="renderRocks()"><option value="">All team members</option></select>
+        <select class="filter-select" id="rocks-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
         <select class="filter-select" id="rocks-filter-q" onchange="renderRocks()">
           <option value="">All quarters</option>
           <option value="Q1">Q1</option><option value="Q2">Q2</option>
@@ -557,22 +597,56 @@
           <option value="complete">Complete</option>
           <option value="not-started">Not started</option>
         </select>
+        <select class="filter-select" id="rocks-filter-team" onchange="renderRocks()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearRocksFilters()">Clear filters</button>
       </div>
-      <button class="btn btn-primary" onclick="openModal('rock')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Rock</button>
+      <button class="btn btn-primary" onclick="openModal('rock', null, document.getElementById('rocks-filter-owner').value)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Rock</button>
     </div>
     <div id="rocks-list"></div>
   </div>
 
   <div id="tab-updates" class="section">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select class="filter-select" id="updates-filter-team" onchange="renderUpdates()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearUpdatesFilters()">Clear filters</button>
+      </div>
+    </div>
     <div id="updates-content"></div>
   </div>
 
   <div id="tab-weekly" class="section">
     <div class="toolbar">
       <div class="toolbar-left">
-        <select class="filter-select" id="weekly-filter-owner" onchange="renderWeekly()"><option value="">All team members</option></select>
+        <select class="filter-select" id="weekly-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
+        <select class="filter-select" id="weekly-filter-team" onchange="renderWeekly()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearWeeklyFilters()">Clear filters</button>
       </div>
-      <button class="btn btn-primary" onclick="openModal('priority')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Priority</button>
+      <button class="btn btn-primary" onclick="openModal('priority', null, document.getElementById('weekly-filter-owner').value)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Priority</button>
     </div>
     <div id="weekly-list"></div>
   </div>
@@ -592,12 +666,24 @@
 </div>
 
 <script>
-const MEMBERS = ['Eva Gossard','Georgia Watson','Rebekah Frazer','Vanessa Bachle','Jennifer Alonso','Megha Juneja','Ron Sandlin'];
-const AVATAR_BG = ['#EDE9FB','#D8F0E6','#FDE8DC','#FDE8EF','#DDEAF8','#FEF1D8','#E5F1DC'];
-const AVATAR_FG = ['#4A3FA0','#145C38','#7A2E10','#7A1A3C','#174E8A','#6B3E06','#285210'];
-const ROCK_COLORS = ['#4A3FA0','#145C38','#7A2E10','#7A1A3C','#174E8A','#6B3E06','#285210'];
+const TEAMS = ['Innovation','OSST','High School Redesign','Project Management','Accountability'];
+const AVATAR_BG = ['#EDE9FB','#D8F0E6','#FDE8DC','#FDE8EF','#DDEAF8','#FEF1D8','#E5F1DC','#F0EAD6','#DCF0F0','#F0DCF0'];
+const AVATAR_FG = ['#4A3FA0','#145C38','#7A2E10','#7A1A3C','#174E8A','#6B3E06','#285210','#5C4A1A','#145C5C','#5C145C'];
 
-function mi(n){return MEMBERS.indexOf(n)}
+function mi(n){ const m=state.members.find(m=>m.name===n); return m?m.colorIdx:-1; }
+function getTeamMembers(team){
+  if(!team) return state.members.map(m=>m.name);
+  if(team==='Leadership') return state.members.filter(m=>m.isDirector).map(m=>m.name);
+  return state.members.filter(m=>m.team===team).map(m=>m.name);
+}
+function getTeamClass(team){
+  if(team==='Innovation') return 'team-innovation';
+  if(team==='OSST') return 'team-osst';
+  if(team==='High School Redesign') return 'team-hs';
+  if(team==='Project Management') return 'team-pm';
+  if(team==='Accountability') return 'team-accountability';
+  return '';
+}
 function avatar(name,lg){
   const i=mi(name); const p=name.trim().split(' ');
   const init=(p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();
@@ -694,21 +780,78 @@ const state = {
     {id:133,owner:'Ron Sandlin',quarter:'Q2',goalId:17,title:'Federal Grant Management – SBMH, Project Aware, EWW',status:'not-started',notes:'PA: Data submissions final. SBMH: Subgrant submitted for Marian. EWW: SP approved for TMT; Contract submitted for TMT.'},
   ],
   priorities: [],
+  members: [
+    {id:1001,name:'Eva Gossard',team:'',isDirector:false,colorIdx:0},
+    {id:1002,name:'Georgia Watson',team:'',isDirector:false,colorIdx:1},
+    {id:1003,name:'Rebekah Frazer',team:'',isDirector:false,colorIdx:2},
+    {id:1004,name:'Vanessa Bachle',team:'',isDirector:false,colorIdx:3},
+    {id:1005,name:'Jennifer Alonso',team:'',isDirector:false,colorIdx:4},
+    {id:1006,name:'Megha Juneja',team:'',isDirector:false,colorIdx:5},
+    {id:1007,name:'Ron Sandlin',team:'',isDirector:false,colorIdx:6},
+  ],
   nextId: 200,
   modalType: null,
   editId: null,
   openMembers: {},
   dashQ: 'Q2',
+  dashTeamFilter: [],
+  dashCollapsed: {},
+  filterOwner: '',
 };
 
 function populateFilters(){
   ['goals','rocks','weekly'].forEach(tab=>{
     const sel=document.getElementById(tab+'-filter-owner');
     if(!sel) return;
-    const cur=sel.value;
     sel.innerHTML='<option value="">All team members</option>';
-    MEMBERS.forEach(m=>{sel.innerHTML+=`<option value="${m}"${m===cur?' selected':''}>${m}</option>`});
+    state.members.forEach(m=>{sel.innerHTML+=`<option value="${m.name}"${m.name===state.filterOwner?' selected':''}>${m.name}</option>`});
   });
+}
+
+function syncOwnerFilter(owner){
+  state.filterOwner=owner;
+  ['goals','rocks','weekly'].forEach(tab=>{
+    const sel=document.getElementById(tab+'-filter-owner');
+    if(sel) sel.value=owner;
+  });
+  if(document.getElementById('tab-goals').classList.contains('active')) renderGoals();
+  else if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
+  else if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
+}
+
+function clearGoalsFilters(){
+  document.getElementById('goals-filter-status').value='';
+  document.getElementById('goals-filter-team').value='';
+  syncOwnerFilter('');
+}
+function clearRocksFilters(){
+  document.getElementById('rocks-filter-q').value='';
+  document.getElementById('rocks-filter-status').value='';
+  document.getElementById('rocks-filter-team').value='';
+  syncOwnerFilter('');
+}
+function clearWeeklyFilters(){
+  document.getElementById('weekly-filter-team').value='';
+  syncOwnerFilter('');
+}
+function clearUpdatesFilters(){
+  document.getElementById('updates-filter-team').value='';
+  renderUpdates();
+}
+
+function toggleDashSection(key){
+  state.dashCollapsed[key]=!state.dashCollapsed[key];
+  renderDashboard();
+}
+function setDashTeamFilter(team){
+  if(team===''){
+    state.dashTeamFilter=[];
+  } else {
+    const i=state.dashTeamFilter.indexOf(team);
+    if(i>=0) state.dashTeamFilter.splice(i,1);
+    else state.dashTeamFilter.push(team);
+  }
+  renderDashboard();
 }
 
 function switchTab(tab){
@@ -717,66 +860,84 @@ function switchTab(tab){
   });
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
+  populateFilters();
   const fns={dashboard:renderDashboard,goals:renderGoals,rocks:renderRocks,updates:renderUpdates,weekly:renderWeekly};
   if(fns[tab]) fns[tab]();
-  populateFilters();
 }
 
 function renderDashboard(){
   const curQ = state.dashQ || 'Q2';
-  const rocks = state.rocks.filter(r => r.quarter === curQ);
+  const dashTeams = state.dashTeamFilter;
+  const dc = state.dashCollapsed;
+  const allRocks = state.rocks.filter(r => r.quarter === curQ);
   const goals = state.goals;
-  const onT = rocks.filter(r=>r.status==='on-track').length;
-  const offT = rocks.filter(r=>r.status==='off-track').length;
-  const comp = rocks.filter(r=>r.status==='complete').length;
   const doneG = goals.filter(g=>g.status==='done').length;
+  const filteredNames = dashTeams.length ? [...new Set(dashTeams.flatMap(t=>getTeamMembers(t)))] : null;
 
   const qOpts = ['Q1','Q2','Q3','Q4'].map(q=>`<option value="${q}"${q===curQ?' selected':''}>${q}</option>`).join('');
 
-  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+  // Section header: clickable label + collapse chevron
+  const sh = (key, label) => {
+    const open = !dc[key];
+    return `<div onclick="toggleDashSection('${key}')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:5px 0;margin-bottom:${open?'12px':'6px'}"><span style="font-size:13px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px">${label}</span><span style="color:var(--text-faint);display:flex;align-items:center;transform:${open?'':'rotate(-90deg)'};transition:transform .2s">${SVG.chevron}</span></div>`;
+  };
+
+  // Team filter pill buttons for Rock Status
+  const teamPills = ['','Innovation','OSST','High School Redesign','Project Management','Accountability','Leadership'].map(t=>{
+    const label = t==='' ? 'All' : t==='Leadership' ? 'Leadership Team' : t;
+    const on = t==='' ? dashTeams.length===0 : dashTeams.includes(t);
+    return `<button onclick="setDashTeamFilter('${t}')" style="padding:3px 12px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;border-radius:99px;border:1.5px solid ${on?'var(--accent)':'var(--border)'};background:${on?'var(--accent)':'var(--surface)'};color:${on?'#fff':'var(--text-muted)'};cursor:pointer;transition:all .15s;white-space:nowrap">${label}</button>`;
+  }).join('');
+
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
     <div style="font-size:13px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px">Overview</div>
-    <div style="display:flex;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span style="font-size:12px;color:var(--text-muted)">Quarter:</span>
       <select class="filter-select" style="height:30px;font-size:12px" onchange="state.dashQ=this.value;renderDashboard()">${qOpts}</select>
+      <button class="btn btn-primary" style="height:30px;font-size:12px" onclick="openModal('member')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add member</button>
     </div>
   </div>
-  <div class="metrics-grid">
+  ${sh('metrics','Metrics')}
+  ${!dc.metrics?`<div class="metrics-grid">
     <div class="metric-card"><div class="metric-label">Annual Goals</div><div class="metric-value">${doneG}<span style="font-family:'DM Sans';font-size:16px;color:var(--text-faint)">/${goals.length}</span></div></div>
-    <div class="metric-card"><div class="metric-label">Big Rocks (${curQ})</div><div class="metric-value">${rocks.length}</div></div>
-    <div class="metric-card"><div class="metric-label">On Track</div><div class="metric-value success">${onT}</div></div>
-    <div class="metric-card"><div class="metric-label">Off Track</div><div class="metric-value warn">${offT}</div></div>
-  </div><div class="divider"></div>
-  <div style="font-size:13px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px">Team rock status — ${curQ}</div>`;
+    <div class="metric-card"><div class="metric-label">Big Rocks (${curQ})</div><div class="metric-value">${allRocks.length}</div></div>
+    <div class="metric-card"><div class="metric-label">On Track</div><div class="metric-value success">${allRocks.filter(r=>r.status==='on-track').length}</div></div>
+    <div class="metric-card"><div class="metric-label">Off Track</div><div class="metric-value warn">${allRocks.filter(r=>r.status==='off-track').length}</div></div>
+  </div>`:''}
+  <div class="divider"></div>
+  ${sh('roster','Team Roster')}
+  ${!dc.roster?`<div class="roster-grid">${state.members.map(mbr=>{
+    const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}">${mbr.team}</span>`:'';
+    const dt=mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:'';
+    return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button></div>`;
+  }).join('')}</div>`:''}
+  <div class="divider"></div>
+  ${sh('rockStatus',`Rock Status — ${curQ}`)}
+  ${!dc.rockStatus?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">${teamPills}</div>`:''}`;
 
-  MEMBERS.forEach(m=>{
-    const mr=rocks.filter(r=>r.owner===m);
-    if(!mr.length) return;
-    const mOn=mr.filter(r=>r.status==='on-track').length;
-    const mOff=mr.filter(r=>r.status==='off-track').length;
-    const mDone=mr.filter(r=>r.status==='complete').length;
-    const pct=Math.round((mOn+mDone)/mr.length*100);
-    html+=`<div class="person-row">${avatar(m)}<div style="flex:1;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:13px;font-weight:600">${m}</span>
-      <span style="font-size:12px;color:var(--text-faint)">${mr.length} rocks &nbsp;·&nbsp; <span style="color:var(--accent)">${mOn} on track</span>${mOff?` &nbsp;·&nbsp; <span style="color:var(--warn)">${mOff} off track</span>`:''}${mDone?` &nbsp;·&nbsp; <span style="color:var(--text-muted)">${mDone} complete</span>`:''}</span>
-    </div></div>`;
-  });
-
-  const offRocks=rocks.filter(r=>r.status==='off-track');
-  if(offRocks.length){
-    html+=`<div class="divider"></div><div class="alert-section-title">${SVG.warn} Off Track — ${curQ} (${offRocks.length})</div>`;
-    offRocks.forEach(r=>{
-      html+=`<div class="card off-track-card" style="padding:.85rem 1.1rem">
-        <div style="display:flex;align-items:center;gap:10px">
-          ${avatar(r.owner)}
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:600">${r.title}</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${r.owner} &nbsp;·&nbsp; ${r.quarter}</div>
-            ${r.notes?`<div class="notes-tag">${r.notes}</div>`:''}
-          </div>
-          ${getRockBadge(r.status)}
-        </div>
-      </div>`;
+  if(!dc.rockStatus){
+    state.members.forEach(mbr=>{
+      const m=mbr.name;
+      if(filteredNames&&!filteredNames.includes(m)) return;
+      const mr=allRocks.filter(r=>r.owner===m);
+      if(!mr.length) return;
+      const mOn=mr.filter(r=>r.status==='on-track').length;
+      const mOff=mr.filter(r=>r.status==='off-track').length;
+      const mDone=mr.filter(r=>r.status==='complete').length;
+      const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}" style="margin-left:6px">${mbr.team}</span>`:'';
+      const dt=mbr.isDirector?`<span class="team-tag team-leadership" style="margin-left:4px">Leadership</span>`:'';
+      html+=`<div class="person-row">${avatar(m)}<div style="flex:1;display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600">${m}${tt}${dt}</span><span style="font-size:12px;color:var(--text-faint)">${mr.length} rocks &nbsp;·&nbsp; <span style="color:var(--accent)">${mOn} on track</span>${mOff?` &nbsp;·&nbsp; <span style="color:var(--warn)">${mOff} off track</span>`:''}${mDone?` &nbsp;·&nbsp; <span style="color:var(--text-muted)">${mDone} complete</span>`:''}</span></div></div>`;
     });
+  }
+
+  const offRocks=allRocks.filter(r=>r.status==='off-track'&&(!filteredNames||filteredNames.includes(r.owner)));
+  if(offRocks.length){
+    html+=`<div class="divider"></div>${sh('offTrack',`Off Track — ${curQ} (${offRocks.length})`)}`;
+    if(!dc.offTrack){
+      offRocks.forEach(r=>{
+        html+=`<div class="card off-track-card" style="padding:.85rem 1.1rem"><div style="display:flex;align-items:center;gap:10px">${avatar(r.owner)}<div style="flex:1"><div style="font-size:13px;font-weight:600">${r.title}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">${r.owner} &nbsp;·&nbsp; ${r.quarter}</div>${r.notes?`<div class="notes-tag">${r.notes}</div>`:''}</div>${getRockBadge(r.status)}</div></div>`;
+      });
+    }
   }
   document.getElementById('dashboard-content').innerHTML=html;
 }
@@ -784,7 +945,9 @@ function renderDashboard(){
 function renderGoals(){
   const owner=document.getElementById('goals-filter-owner')?.value||'';
   const status=document.getElementById('goals-filter-status')?.value||'';
-  const goals=state.goals.filter(g=>(!owner||g.owner===owner)&&(!status||g.status===status));
+  const team=document.getElementById('goals-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  const goals=state.goals.filter(g=>(!owner||g.owner===owner)&&(!status||g.status===status)&&(!team||tm.includes(g.owner)));
   const el=document.getElementById('goals-list');
   if(!goals.length){el.innerHTML=`<div class="empty">${SVG.target}No goals found.</div>`;return;}
   el.innerHTML=goals.map(g=>{
@@ -808,7 +971,9 @@ function renderRocks(){
   const owner=document.getElementById('rocks-filter-owner')?.value||'';
   const q=document.getElementById('rocks-filter-q')?.value||'';
   const st=document.getElementById('rocks-filter-status')?.value||'';
-  const rocks=state.rocks.filter(r=>(!owner||r.owner===owner)&&(!q||r.quarter===q)&&(!st||r.status===st));
+  const team=document.getElementById('rocks-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  const rocks=state.rocks.filter(r=>(!owner||r.owner===owner)&&(!q||r.quarter===q)&&(!st||r.status===st)&&(!team||tm.includes(r.owner)));
   const el=document.getElementById('rocks-list');
   if(!rocks.length){el.innerHTML=`<div class="empty">${SVG.layers}No rocks found.</div>`;return;}
   el.innerHTML=rocks.map(r=>{
@@ -828,8 +993,12 @@ function renderRocks(){
 
 function renderUpdates(){
   const el=document.getElementById('updates-content');
+  const team=document.getElementById('updates-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
   let html=`<p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">Update the status and notes for each of your big rocks below. Changes are reflected immediately on the dashboard.</p>`;
-  MEMBERS.forEach(m=>{
+  state.members.forEach(mbr=>{
+    const m=mbr.name;
+    if(team&&!tm.includes(m)) return;
     const mr=state.rocks.filter(r=>r.owner===m);
     if(!mr.length) return;
     const isOpen=state.openMembers[m]!==false;
@@ -855,6 +1024,14 @@ function renderUpdates(){
             <option value="not-started"${r.status==='not-started'?' selected':''}>Not started</option>
           </select>
           <button class="save-btn" id="savebtn-${r.id}" onclick="quickSave(${r.id})">Save</button>
+          <div class="update-notes-strip">
+            <div class="notes-section-hdr">Notes</div>
+            <div class="notes-list" id="updnote-list-${r.id}">${renderNotesHTML(r.noteHistory||[])}</div>
+            <div class="note-add-row">
+              <textarea class="note-input" id="updnote-${r.id}" placeholder="Add a note…"></textarea>
+              <button class="note-add-btn" onclick="addUpdateNote(${r.id})">Add note</button>
+            </div>
+          </div>
         </div>`).join('')}
       </div>
     </div>`;
@@ -887,7 +1064,9 @@ function quickSave(id){
 
 function renderWeekly(){
   const owner=document.getElementById('weekly-filter-owner')?.value||'';
-  const priorities=state.priorities.filter(p=>!owner||p.owner===owner);
+  const team=document.getElementById('weekly-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  const priorities=state.priorities.filter(p=>(!owner||p.owner===owner)&&(!team||tm.includes(p.owner)));
   const el=document.getElementById('weekly-list');
   if(!priorities.length){el.innerHTML=`<div class="empty">${SVG.calendar}No priorities yet. Add this week's top items!</div>`;return;}
   const byWeek={};
@@ -927,6 +1106,46 @@ function buildGoalOpts(owner, selectedGoalId){
   return `<option value="">None</option>${opts}<option value="other"${otherSel}>Other</option>`;
 }
 
+function formatTs(){
+  const d=new Date();
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+}
+function renderNotesHTML(notes){
+  if(!notes||!notes.length) return '<div class="notes-empty">No notes yet.</div>';
+  return notes.map(n=>`<div class="note-item"><div class="note-ts">${n.ts}</div><div class="note-text">${esc(n.text)}</div></div>`).join('');
+}
+function notesSection(notes){
+  return `<div class="divider"></div><div><div class="notes-section-hdr">Notes</div><div class="notes-list" id="modal-notes-list">${renderNotesHTML(notes)}</div><div class="note-add-row"><textarea class="note-input" id="f-new-note" placeholder="Add a note…"></textarea><button class="note-add-btn" onclick="addModalNote()">Add note</button></div></div>`;
+}
+function addModalNote(){
+  const type=state.modalType; const id=state.editId;
+  if(!id) return;
+  const nEl=document.getElementById('f-new-note');
+  const text=(nEl?.value||'').trim(); if(!text) return;
+  let item;
+  if(type==='goal') item=state.goals.find(g=>g.id===id);
+  else if(type==='rock') item=state.rocks.find(r=>r.id===id);
+  else item=state.priorities.find(p=>p.id===id);
+  if(!item) return;
+  if(!item.noteHistory) item.noteHistory=[];
+  item.noteHistory.unshift({text,ts:formatTs()});
+  nEl.value='';
+  const listEl=document.getElementById('modal-notes-list');
+  if(listEl) listEl.innerHTML=renderNotesHTML(item.noteHistory);
+  scheduleSave();
+}
+function addUpdateNote(rockId){
+  const r=state.rocks.find(r=>r.id===rockId); if(!r) return;
+  const nEl=document.getElementById('updnote-'+rockId);
+  const text=(nEl?.value||'').trim(); if(!text) return;
+  if(!r.noteHistory) r.noteHistory=[];
+  r.noteHistory.unshift({text,ts:formatTs()});
+  nEl.value='';
+  const listEl=document.getElementById('updnote-list-'+rockId);
+  if(listEl) listEl.innerHTML=renderNotesHTML(r.noteHistory);
+  scheduleSave();
+}
+
 function buildRockOpts(owner, selectedRockId){
   const ownerRocks = state.rocks.filter(r => r.owner === owner);
   const opts = ownerRocks.map(r =>
@@ -936,14 +1155,18 @@ function buildRockOpts(owner, selectedRockId){
   return `<option value="">None</option>${opts}<option value="other"${otherSel}>Other</option>`;
 }
 
-function openModal(type,id=null){
+function memberOwnerOpts(sel){ return state.members.map(m=>`<option value="${m.name}"${m.name===sel?' selected':''}>${m.name}</option>`).join(''); }
+
+function openModal(type, id=null, preOwner=''){
   state.modalType=type; state.editId=id;
-  document.getElementById('modal-title').textContent=id?{goal:'Edit goal',rock:'Edit rock',priority:'Edit priority'}[type]:{goal:'Add annual goal',rock:'Add big rock',priority:'Add weekly priority'}[type];
+  const titles={goal:'Edit goal',rock:'Edit rock',priority:'Edit priority',member:'Edit team member'};
+  const addTitles={goal:'Add annual goal',rock:'Add big rock',priority:'Add weekly priority',member:'Add team member'};
+  document.getElementById('modal-title').textContent=id?titles[type]:addTitles[type];
   let body='';
   if(type==='goal'){
     const g=id?state.goals.find(g=>g.id===id):{};
-    const sel=g.owner||MEMBERS[0];
-    body=`<div class="field"><label>Owner</label><select id="f-owner">${MEMBERS.map(m=>`<option${m===sel?' selected':''}>${m}</option>`).join('')}</select></div>
+    const sel=g.owner||preOwner||(state.members[0]?.name||'');
+    body=`<div class="field"><label>Owner</label><select id="f-owner">${memberOwnerOpts(sel)}</select></div>
     <div class="field"><label>Goal title</label><input type="text" id="f-title" value="${esc(g.title)}"></div>
     <div class="field"><label>Category</label><input type="text" id="f-category" value="${esc(g.category)}"></div>
     <div class="field"><label>Target metric</label><input type="text" id="f-metric" value="${esc(g.metric)}"></div>
@@ -952,21 +1175,39 @@ function openModal(type,id=null){
     <div class="field"><label>Progress (<span id="prog-lbl">${g.progress||0}</span>%)</label><input type="range" id="f-progress" min="0" max="100" step="1" value="${g.progress||0}" oninput="document.getElementById('prog-lbl').textContent=this.value" style="width:100%;height:6px;cursor:pointer"></div>`;
   } else if(type==='rock'){
     const r=id?state.rocks.find(r=>r.id===id):{};
-    const sel=r.owner||MEMBERS[0];
+    const sel=r.owner||preOwner||(state.members[0]?.name||'');
     const linkedGoalId = r.goalId || '';
-    body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshRockGoals()">${MEMBERS.map(m=>`<option${m===sel?' selected':''}>${m}</option>`).join('')}</select></div>
+    body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshRockGoals()">${memberOwnerOpts(sel)}</select></div>
     <div class="field"><label>Rock title</label><input type="text" id="f-title" value="${esc(r.title)}"></div>
     <div class="field"><label>Quarter</label><select id="f-quarter"><option value="Q1"${r.quarter==='Q1'?' selected':''}>Q1</option><option value="Q2"${(!r.quarter||r.quarter==='Q2')?' selected':''}>Q2</option><option value="Q3"${r.quarter==='Q3'?' selected':''}>Q3</option><option value="Q4"${r.quarter==='Q4'?' selected':''}>Q4</option></select></div>
     <div class="field"><label>Linked annual goal</label><select id="f-goalId">${buildGoalOpts(sel, linkedGoalId)}</select></div>
     <div class="field"><label>Status</label><select id="f-status"><option value="not-started"${(!r.status||r.status==='not-started')?' selected':''}>Not started</option><option value="on-track"${r.status==='on-track'?' selected':''}>On track</option><option value="off-track"${r.status==='off-track'?' selected':''}>Off track</option><option value="complete"${r.status==='complete'?' selected':''}>Complete</option></select></div>
     <div class="field"><label>Notes / Reflections</label><textarea id="f-notes">${r.notes||''}</textarea></div>`;
-  } else {
+  } else if(type==='priority'){
     const p=id?state.priorities.find(p=>p.id===id):{};
-    const sel=p.owner||MEMBERS[0];
-    body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshPriorityRocks()">${MEMBERS.map(m=>`<option${m===sel?' selected':''}>${m}</option>`).join('')}</select></div>
+    const sel=p.owner||preOwner||(state.members[0]?.name||'');
+    body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshPriorityRocks()">${memberOwnerOpts(sel)}</select></div>
     <div class="field"><label>Priority</label><input type="text" id="f-title" value="${esc(p.text)}" placeholder="e.g. Draft Q2 policy memo"></div>
-    <div class="field"><label>Week of (YYYY-MM-DD)</label><input type="text" id="f-week" value="${p.weekOf||'2026-05-11'}"></div>
+    <div class="field"><label>Week of</label><input type="date" id="f-week" value="${p.weekOf||'2026-05-11'}"></div>
     <div class="field"><label>Linked rock (optional)</label><select id="f-rockId">${buildRockOpts(sel, p.rockId||'')}</select></div>`;
+  } else if(type==='member'){
+    const mbr=id?state.members.find(m=>m.id===id):{};
+    const teamSel=mbr.team||'';
+    body=`<div class="field"><label>Name</label><input type="text" id="f-name" value="${esc(mbr.name)}" placeholder="Full name"></div>
+    <div class="field"><label>Team <span style="font-weight:400;text-transform:none;font-size:12px">(optional)</span></label><select id="f-team">
+      <option value="">No team assigned</option>
+      ${TEAMS.map(t=>`<option value="${t}"${t===teamSel?' selected':''}>${t}</option>`).join('')}
+    </select></div>
+    <div class="field" style="margin-top:4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--text)">
+      <input type="checkbox" id="f-director" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)"${mbr.isDirector?' checked':''}> Director / Assistant Director
+    </label><div style="font-size:11px;color:var(--text-faint);margin-top:3px;margin-left:24px">Adds this person to the Leadership Team filter in addition to their assigned team.</div></div>`;
+  }
+  if(id && type!=='member'){
+    let item;
+    if(type==='goal') item=state.goals.find(g=>g.id===id);
+    else if(type==='rock') item=state.rocks.find(r=>r.id===id);
+    else item=state.priorities.find(p=>p.id===id);
+    if(item) body+=notesSection(item.noteHistory||[]);
   }
   document.getElementById('modal-body').innerHTML=body;
   document.getElementById('modal-bg').classList.add('open');
@@ -999,15 +1240,38 @@ function saveModal(){
     if(id) Object.assign(state.rocks.find(r=>r.id===id),data); else state.rocks.push({id:state.nextId++,...data});
     renderRocks();
     if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
-  } else {
+  } else if(type==='priority'){
     const rId=document.getElementById('f-rockId').value;
     const data={owner:document.getElementById('f-owner').value,text:document.getElementById('f-title').value,weekOf:document.getElementById('f-week').value||'2026-05-11',rockId:(rId&&rId!=='other')?parseInt(rId):null,done:false};
     if(!data.text) return;
     if(id) Object.assign(state.priorities.find(p=>p.id===id),data); else state.priorities.push({id:state.nextId++,...data});
     renderWeekly();
+  } else if(type==='member'){
+    const name=document.getElementById('f-name').value.trim();
+    if(!name) return;
+    const team=document.getElementById('f-team').value;
+    const isDirector=document.getElementById('f-director').checked;
+    if(id){
+      const mbr=state.members.find(m=>m.id===id);
+      if(mbr){
+        if(mbr.name!==name){
+          state.goals.forEach(g=>{if(g.owner===mbr.name)g.owner=name;});
+          state.rocks.forEach(r=>{if(r.owner===mbr.name)r.owner=name;});
+          state.priorities.forEach(p=>{if(p.owner===mbr.name)p.owner=name;});
+        }
+        Object.assign(mbr,{name,team,isDirector});
+      }
+    } else {
+      const colorIdx=state.members.length%AVATAR_BG.length;
+      state.members.push({id:state.nextId++,name,team,isDirector,colorIdx});
+    }
   }
   closeModal(); populateFilters();
-  if(document.getElementById('tab-dashboard').classList.contains('active')) renderDashboard();
+  renderDashboard();
+  if(document.getElementById('tab-goals').classList.contains('active')) renderGoals();
+  if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
+  if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
+  if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
 }
 
 function editItem(type,id){openModal(type,id);}
@@ -1033,6 +1297,7 @@ async function saveData() {
     goals: state.goals,
     rocks: state.rocks,
     priorities: state.priorities,
+    members: state.members,
     nextId: state.nextId,
   };
   try {
@@ -1085,6 +1350,7 @@ async function boot() {
         state.goals     = saved.goals     ?? state.goals;
         state.rocks     = saved.rocks     ?? state.rocks;
         state.priorities= saved.priorities?? state.priorities;
+        state.members   = saved.members   ?? state.members;
         state.nextId    = saved.nextId    ?? state.nextId;
       }
     }
