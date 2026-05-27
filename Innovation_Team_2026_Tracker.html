@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Innovation Team — 2026 Performance Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --border: #E5E2D9;
+    --border-strong: #CCC9BF;
+    --text: #1A1916;
+    --text-muted: #706E67;
+    --text-faint: #A09E97;
+    --accent: #2A5C45;
+    --accent-light: #EAF2EE;
+    --accent-text: #1A3D2D;
+    --warn: #7A4A00;
+    --warn-light: #FEF3E2;
+    --warn-text: #7A4A00;
+    --danger: #8B1A1A;
+    --danger-light: #FEF0F0;
+    --info: #1A3A6B;
+    --info-light: #EEF3FC;
+    --done-bg: #E5F4EC;
+    --done-text: #1A3D2D;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .header-brand {
+    padding: 1rem 0;
+  }
+  .header-brand h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .header-brand p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .header-tabs {
+    display: flex;
+    gap: 2px;
+  }
+  .tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .tab:hover { background: var(--bg); color: var(--text); }
+  .tab.active { background: var(--text); color: #fff; }
+  .tab svg { flex-shrink: 0; }
+
+  /* Layout */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .toolbar-left { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-select {
+    height: 34px;
+    padding: 0 10px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .filter-select:hover, .filter-select:focus { border-color: var(--border-strong); }
+
+  /* Buttons */
+  .btn {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg); border-color: var(--border-strong); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-text); border-color: var(--accent-text); }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
+  .card-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .card-desc { font-size: 13px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+  .card-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    transition: all .15s;
+  }
+  .icon-btn:hover { background: var(--bg); color: var(--text); border-color: var(--border-strong); }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+  }
+  .badge-success { background: var(--done-bg); color: var(--done-text); }
+  .badge-warning { background: var(--warn-light); color: var(--warn-text); }
+  .badge-danger { background: var(--danger-light); color: var(--danger); }
+  .badge-info { background: var(--info-light); color: var(--info); }
+  .badge-neutral { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* Progress */
+  .progress-bar {
+    height: 5px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .4s ease;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(0,0,0,0.06);
+  }
+  .avatar-lg { width: 40px; height: 40px; font-size: 13px; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .metric-label { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .metric-value { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--text); line-height: 1; }
+  .metric-value.warn { color: var(--warn); }
+  .metric-value.success { color: var(--accent); }
+
+  /* Person row */
+  .person-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .person-row:last-child { margin-bottom: 0; }
+
+  /* Rocks linked under goals */
+  .child-rocks {
+    margin-left: 1.5rem;
+    border-left: 2px solid var(--border);
+    padding-left: 1rem;
+    margin-top: 10px;
+  }
+  .child-rock-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .child-rock-row:last-child { border-bottom: none; }
+  .child-rock-q { font-weight: 600; color: var(--text-faint); min-width: 26px; }
+
+  /* Alert section */
+  .alert-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--warn);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .off-track-card {
+    border-left: 3px solid #D4860A;
+  }
+  .notes-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--info-light);
+    color: var(--info);
+    margin-top: 4px;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Member update cards */
+  .member-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .member-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background .12s;
+    background: var(--bg);
+  }
+  .member-header:hover { background: #EFEDE7; }
+  .member-name { font-size: 15px; font-weight: 600; flex: 1; }
+  .member-meta { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .chevron { display:flex; align-items:center; color:var(--text-faint); transition:transform .2s; }
+  .chevron.open { transform: rotate(180deg); }
+  .member-body {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .rock-update-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 70px;
+    gap: 10px;
+    align-items: start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .rock-update-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .rock-update-name { font-size: 13px; font-weight: 500; line-height: 1.4; }
+  .rock-update-quarter { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .update-textarea {
+    width: 100%;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 6px 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    resize: none;
+    height: 56px;
+    margin-top: 6px;
+    outline: none;
+    transition: border-color .15s;
+    line-height: 1.5;
+  }
+  .update-textarea:focus { border-color: var(--border-strong); background: var(--surface); }
+  .update-textarea::placeholder { color: var(--text-faint); }
+  .inline-select {
+    width: 100%;
+    height: 32px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .inline-select:hover, .inline-select:focus { border-color: var(--border-strong); }
+  .save-btn {
+    width: 100%;
+    height: 32px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .save-btn:hover { background: var(--bg); border-color: var(--border-strong); }
+  .save-btn.saved { background: var(--done-bg); color: var(--done-text); border-color: transparent; }
+
+  /* Weekly priorities */
+  .week-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 1.25rem 0 8px;
+  }
+  .priority-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .priority-row:last-child { border-bottom: none; }
+  .checkbox {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .15s;
+    background: var(--surface);
+  }
+  .checkbox.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .priority-text { flex: 1; font-size: 13px; }
+  .priority-text.done { text-decoration: line-through; color: var(--text-faint); }
+  .priority-rock-link { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+
+  /* Modal */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,25,22,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    width: 480px;
+    max-width: 95vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+  }
+  .modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    height: 38px;
+    padding: 0 11px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--border-strong); background: var(--surface); }
+  .field textarea { height: 84px; padding: 9px 11px; resize: vertical; line-height: 1.5; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.25rem; }
+
+  /* Empty states */
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text-faint); font-size: 14px; }
+  .empty i { font-size: 28px; display: block; margin-bottom: 10px; opacity: 0.4; }
+
+  /* Team tags */
+  .team-tag { display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:0.3px;white-space:nowrap; }
+  .team-innovation { background:#EDE9FB;color:#4A3FA0; }
+  .team-osst { background:#D8F0E6;color:#145C38; }
+  .team-hs { background:#DDEAF8;color:#174E8A; }
+  .team-pm { background:#FDE8EF;color:#7A1A3C; }
+  .team-leadership { background:#FEF1D8;color:#6B3E06; }
+  .team-accountability { background:#F0EAD6;color:#5C4A1A; }
+
+  /* Member roster grid on dashboard */
+  .roster-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1.5rem; }
+  .roster-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow); }
+  .roster-info { flex:1;min-width:0; }
+  .roster-name { font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .roster-tags { display:flex;gap:4px;flex-wrap:wrap;margin-top:3px; }
+
+  /* Notes history */
+  .note-item { border-left: 2px solid var(--border); padding: 5px 10px; margin-bottom: 6px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .note-ts { font-size: 11px; color: var(--text-faint); font-weight: 600; }
+  .note-text { font-size: 13px; margin-top: 2px; color: var(--text); line-height: 1.5; }
+  .notes-list { max-height: 160px; overflow-y: auto; margin-bottom: 4px; }
+  .notes-empty { font-size: 12px; color: var(--text-faint); padding: 4px 0 6px; }
+  .notes-section-hdr { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .note-add-row { display: flex; gap: 8px; align-items: flex-start; margin-top: 6px; }
+  .note-input { flex: 1; height: 52px; font-size: 12px; font-family: 'DM Sans', sans-serif; padding: 6px 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); resize: none; outline: none; line-height: 1.5; transition: border-color .15s; }
+  .note-input:focus { border-color: var(--border-strong); background: var(--surface); }
+  .note-add-btn { height: 52px; padding: 0 12px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 600; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
+  .note-add-btn:hover { background: var(--bg); border-color: var(--border-strong); }
+  .update-notes-strip { grid-column: 1 / -1; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header-inner { flex-direction: column; align-items: flex-start; gap: 0; }
+    .header-tabs { flex-wrap: wrap; padding-bottom: 8px; }
+    .main { padding: 1rem; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .rock-update-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <h1>Innovation Team</h1>
+      <p>2026 Performance Tracker</p>
+    </div>
+    <nav class="header-tabs">
+      <button class="tab active" onclick="switchTab('dashboard')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</button>
+      <button class="tab" onclick="switchTab('goals')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Annual Goals</button>
+      <button class="tab" onclick="switchTab('rocks')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Big Rocks</button>
+      <button class="tab" onclick="switchTab('updates')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> My Updates</button>
+      <button class="tab" onclick="switchTab('weekly')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Weekly Priorities</button>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+  <div id="tab-dashboard" class="section active">
+    <div id="dashboard-content"></div>
+  </div>
+
+  <div id="tab-goals" class="section">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select class="filter-select" id="goals-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
+        <select class="filter-select" id="goals-filter-status" onchange="renderGoals()">
+          <option value="">All statuses</option>
+          <option value="not-started">Not started</option>
+          <option value="on-track">On track</option>
+          <option value="at-risk">At risk</option>
+          <option value="done">Done</option>
+        </select>
+        <select class="filter-select" id="goals-filter-team" onchange="renderGoals()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearGoalsFilters()">Clear filters</button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('goal')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Goal</button>
+    </div>
+    <div id="goals-list"></div>
+  </div>
+
+  <div id="tab-rocks" class="section">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select class="filter-select" id="rocks-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
+        <select class="filter-select" id="rocks-filter-q" onchange="renderRocks()">
+          <option value="">All quarters</option>
+          <option value="Q1">Q1</option><option value="Q2">Q2</option>
+          <option value="Q3">Q3</option><option value="Q4">Q4</option>
+        </select>
+        <select class="filter-select" id="rocks-filter-status" onchange="renderRocks()">
+          <option value="">All statuses</option>
+          <option value="on-track">On track</option>
+          <option value="off-track">Off track</option>
+          <option value="complete">Complete</option>
+          <option value="not-started">Not started</option>
+        </select>
+        <select class="filter-select" id="rocks-filter-team" onchange="renderRocks()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearRocksFilters()">Clear filters</button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('rock', null, document.getElementById('rocks-filter-owner').value)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Rock</button>
+    </div>
+    <div id="rocks-list"></div>
+  </div>
+
+  <div id="tab-updates" class="section">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select class="filter-select" id="updates-filter-team" onchange="renderUpdates()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearUpdatesFilters()">Clear filters</button>
+      </div>
+    </div>
+    <div id="updates-content"></div>
+  </div>
+
+  <div id="tab-weekly" class="section">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select class="filter-select" id="weekly-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
+        <select class="filter-select" id="weekly-filter-team" onchange="renderWeekly()">
+          <option value="">All teams</option>
+          <option value="Innovation">Innovation</option>
+          <option value="OSST">OSST</option>
+          <option value="High School Redesign">High School Redesign</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Accountability">Accountability</option>
+          <option value="Leadership">Leadership Team</option>
+        </select>
+        <button class="btn" onclick="clearWeeklyFilters()">Clear filters</button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('priority', null, document.getElementById('weekly-filter-owner').value)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Priority</button>
+    </div>
+    <div id="weekly-list"></div>
+  </div>
+
+</main>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="handleModalBgClick(event)">
+  <div class="modal">
+    <h2 id="modal-title"></h2>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEAMS = ['Innovation','OSST','High School Redesign','Project Management','Accountability'];
+const AVATAR_BG = ['#EDE9FB','#D8F0E6','#FDE8DC','#FDE8EF','#DDEAF8','#FEF1D8','#E5F1DC','#F0EAD6','#DCF0F0','#F0DCF0'];
+const AVATAR_FG = ['#4A3FA0','#145C38','#7A2E10','#7A1A3C','#174E8A','#6B3E06','#285210','#5C4A1A','#145C5C','#5C145C'];
+
+function mi(n){ const m=state.members.find(m=>m.name===n); return m?m.colorIdx:-1; }
+function getTeamMembers(team){
+  if(!team) return state.members.map(m=>m.name);
+  if(team==='Leadership') return state.members.filter(m=>m.isDirector).map(m=>m.name);
+  return state.members.filter(m=>m.team===team).map(m=>m.name);
+}
+function getTeamClass(team){
+  if(team==='Innovation') return 'team-innovation';
+  if(team==='OSST') return 'team-osst';
+  if(team==='High School Redesign') return 'team-hs';
+  if(team==='Project Management') return 'team-pm';
+  if(team==='Accountability') return 'team-accountability';
+  return '';
+}
+function avatar(name,lg){
+  const i=mi(name); const p=name.trim().split(' ');
+  const init=(p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();
+  const bg=i>=0?AVATAR_BG[i]:'#EEE'; const color=i>=0?AVATAR_FG[i]:'#555';
+  return `<div class="avatar${lg?' avatar-lg':''}" style="background:${bg};color:${color}">${init}</div>`;
+}
+
+function getRockBadge(s){
+  if(s==='on-track') return '<span class="badge badge-success">On track</span>';
+  if(s==='off-track') return '<span class="badge badge-warning">Off track</span>';
+  if(s==='complete') return '<span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:9px;margin-right:3px"></i>Complete</span>';
+  if(s==='not-started') return '<span class="badge badge-neutral">Not started</span>';
+  return '<span class="badge badge-neutral">'+s+'</span>';
+}
+function getGoalBadge(s){
+  if(s==='on-track') return '<span class="badge badge-success">On track</span>';
+  if(s==='at-risk') return '<span class="badge badge-warning">At risk</span>';
+  if(s==='done') return '<span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:9px;margin-right:3px"></i>Done</span>';
+  if(s==='not-started') return '<span class="badge badge-neutral">Not started</span>';
+  return '';
+}
+function progressColor(s){
+  if(s==='done'||s==='complete') return '#2A5C45';
+  if(s==='at-risk'||s==='off-track') return '#D4860A';
+  if(s==='on-track') return '#2A5C45';
+  return '#A09E97';
+}
+
+const SVG = {
+  pen: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  warn: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  check: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  chevron: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  target: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;display:block;margin:0 auto 10px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  layers: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;display:block;margin:0 auto 10px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+  calendar: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;display:block;margin:0 auto 10px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+};
+
+const state = {
+  goals: [
+    {id:1,owner:'Eva Gossard',title:'Draft and submit accountability policy proposal',category:'Policy',status:'not-started',progress:0,metric:'Submitted by Aug 2026',desc:'Draft and submit a formal policy proposal addressing accountability consequences aligned to the new accountability model.'},
+    {id:2,owner:'Eva Gossard',title:'Provide coaching cycles to 100% of school support specialists',category:'School Support',status:'not-started',progress:0,metric:'3 new hires improve 1+ performance level',desc:'Provide at least 1 coaching cycle with 100% of school support specialists; new hires improve by at least one performance level by Dec 2026.'},
+    {id:3,owner:'Eva Gossard',title:'Executive coaching: 80% of assigned leaders improve rubric score',category:'School Support',status:'not-started',progress:0,metric:'80% improve 1pt on 2–3 rubric strands',desc:'Provide targeted executive coaching ensuring 80% of assigned leaders improve by 1 point on 2–3 prioritized rubric strands via bi-monthly data reviews.'},
+    {id:4,owner:'Eva Gossard',title:'75% satisfaction on OSST post-survey',category:'School Support',status:'not-started',progress:0,metric:'75% satisfaction rating',desc:'Deliver high-impact leadership coaching to 100% of assigned CSI school leaders, achieving 75% overall satisfaction on the OSST post-survey.'},
+    {id:5,owner:'Georgia Watson',title:'Close out 100% of Next Gen SIG cohorts 1 & 2',category:'Transformation',status:'not-started',progress:0,metric:'100% schools with approved sustainability plans by Dec 2026',desc:'Verify every school has an approved sustainability plan integrating SIG-funded shifts into the permanent LEA budget.'},
+    {id:6,owner:'Georgia Watson',title:'80% of awarded LEAs meet 3/3 SIG benchmarks',category:'Transformation',status:'not-started',progress:0,metric:'80% of LEAs meet benchmarks',desc:'Ensure at minimum 80% of awarded LEAs successfully meet 3 out of 3 established benchmarks on the SIG tracker per awarded school.'},
+    {id:7,owner:'Rebekah Frazer',title:'Launch comprehensive counselor resource toolkit',category:'Counseling',status:'not-started',progress:0,metric:'≥80% positive satisfaction in counselor surveys',desc:'Design, launch, and iterate a comprehensive counselor resource toolkit aligned to new diploma requirements.'},
+    {id:8,owner:'Rebekah Frazer',title:'Complete 3+ leadership development activities',category:'Professional Growth',status:'not-started',progress:0,metric:'3+ activities + 80% positive feedback',desc:'Strengthen professional leadership capacity through training in data-informed decision-making, change management, and diploma-pathway implementation.'},
+    {id:9,owner:'Rebekah Frazer',title:'Deliver Indiana Comprehensive School Counseling Model training',category:'Counseling',status:'not-started',progress:0,metric:'1+ educator prep course or statewide PD workshop',desc:'Deliver Indiana\'s Comprehensive School Counseling Model in at least one educator preparation program or statewide PD workshop by Dec 2026.'},
+    {id:10,owner:'Vanessa Bachle',title:'Strategic revamp of the waiver process',category:'Policy',status:'not-started',progress:0,metric:'Measurable increase in instructional time by Dec 2026',desc:'Improve student outcomes by revamping the waiver process: align guidance, create optimized JotForm workflow, and proactively communicate to preserve instructional time.'},
+    {id:11,owner:'Vanessa Bachle',title:'Accountability dashboard technical implementation',category:'Data & Accountability',status:'not-started',progress:0,metric:'Majority of schools using dashboards in July & Oct cycles',desc:'Oversee technical implementation, confirm dashboards accurately reflect required accountability data, and reduce identified data errors across the first reporting cycle.'},
+    {id:12,owner:'Jennifer Alonso',title:'Strategic revamp of the waiver process',category:'Policy',status:'not-started',progress:0,metric:'Measurable increase in instructional time by Dec 2026',desc:'Improve student outcomes by revamping the waiver process: align guidance, create optimized JotForm workflow, and proactively communicate to preserve instructional time.'},
+    {id:13,owner:'Jennifer Alonso',title:'Strengthen cohort management systems and practices',category:'Data & Accountability',status:'not-started',progress:0,metric:'Clear guidance materials + tracking systems with IT',desc:'Ensure accurate and appropriate student cohort placement, monitoring, and assessment through new guidance materials and IT-supported internal tracking systems.'},
+    {id:14,owner:'Megha Juneja',title:'Launch A-F Accountability model interactive dashboard',category:'Innovation',status:'not-started',progress:0,metric:'High clarity sentiment from key stakeholders by Dec 2026',desc:'Support launch of the first school grades under the new Indiana A-F Accountability model via interactive dashboard.'},
+    {id:15,owner:'Megha Juneja',title:'Launch Mastery Based Learning Pilot',category:'Innovation',status:'not-started',progress:0,metric:'3+ high-impact sites + Local Mastery Boards by Nov 2026',desc:'Launch the Mastery Based Learning Pilot with a minimum of three high-impact sites and establish Local Mastery Boards.'},
+    {id:16,owner:'Ron Sandlin',title:'Finalize accountability consequences legislation',category:'Policy',status:'not-started',progress:0,metric:'Approved by Dr. Jenner by end of 2026',desc:'Finalize legislation related to accountability consequences and have it approved by Dr. Jenner.'},
+    {id:17,owner:'Ron Sandlin',title:'ESEA Flexibility Waiver Implementation',category:'Federal Programs',status:'not-started',progress:0,metric:'Decrease admin use of funds by 20%',desc:'Ensure effective roll-out and uptake of schoolwide consolidation provision in ESSA across Indiana.'},
+    {id:18,owner:'Ron Sandlin',title:'Develop 3+ innovation team internal systems',category:'Operations',status:'not-started',progress:0,metric:'3+ systems implemented by end of 2026',desc:'Develop and implement at least three systems within the innovation team to more efficiently execute, monitor, and evaluate collective impact.'},
+  ],
+  rocks: [
+    {id:101,owner:'Vanessa Bachle',quarter:'Q2',goalId:11,title:'Federal Accountability – audit done, review results, finalize spreadsheets',status:'on-track',notes:''},
+    {id:102,owner:'Vanessa Bachle',quarter:'Q2',goalId:11,title:'CSI, TSI, ATSI – finalize list and get in postable form',status:'on-track',notes:''},
+    {id:103,owner:'Vanessa Bachle',quarter:'Q2',goalId:11,title:'State Accountability – technical dashboards complete and released to field',status:'off-track',notes:''},
+    {id:104,owner:'Vanessa Bachle',quarter:'Q2',goalId:11,title:'State Accountability – guidance and education about the final model',status:'off-track',notes:''},
+    {id:105,owner:'Vanessa Bachle',quarter:'Q2',goalId:10,title:'Instructional Time Messaging – guidance, tracking, targeted education',status:'off-track',notes:'Use lessons learned and unintentional incentives to create new resources/guidance and make policies "winter proof"'},
+    {id:106,owner:'Vanessa Bachle',quarter:'Q2',goalId:13,title:'Cohort transition planning – outline and plan all cohort actions throughout the year',status:'on-track',notes:''},
+    {id:107,owner:'Vanessa Bachle',quarter:'Q2',goalId:null,title:'Accreditation Planning – learn, consequences, tracking',status:'off-track',notes:''},
+    {id:108,owner:'Vanessa Bachle',quarter:'Q2',goalId:11,title:'Data Reporting support – attendance, calendars during certification',status:'on-track',notes:''},
+    {id:109,owner:'Eva Gossard',quarter:'Q2',goalId:2,title:'Internal training – update framework resources, data visualizations, site visits, internal training',status:'on-track',notes:'Have skeleton versions of framework resources, meeting scheduled with Megan, site visits scheduled, scope and sequence of internal PDs completed.'},
+    {id:110,owner:'Eva Gossard',quarter:'Q2',goalId:null,title:'NGS: launch app for C6 eCIVIS',status:'on-track',notes:'App revised; figuring out solicitation of eCIVIS; PDF version will be uploaded to PAMs/SAMs in next couple weeks.'},
+    {id:111,owner:'Eva Gossard',quarter:'Q2',goalId:1,title:'AC: complete draft of Theory of Action',status:'off-track',notes:'Reduced the noise and focus in March.'},
+    {id:112,owner:'Georgia Watson',quarter:'Q2',goalId:5,title:'Launch NGS application',status:'on-track',notes:'Application launched Friday, March 6th.'},
+    {id:113,owner:'Georgia Watson',quarter:'Q2',goalId:6,title:'1003 Flexibility Waiver',status:'on-track',notes:'First memos going to the board March 4th.'},
+    {id:114,owner:'Georgia Watson',quarter:'Q2',goalId:6,title:'NGS deliverables feedback',status:'off-track',notes:'Paused due to 1003 Flex Waiver and NGS app.'},
+    {id:115,owner:'Jennifer Alonso',quarter:'Q2',goalId:13,title:'SAT Cohort Issues',status:'on-track',notes:'Getting lots of JotForm requests. All need to be processed by March 3rd.'},
+    {id:116,owner:'Jennifer Alonso',quarter:'Q2',goalId:13,title:'Cohort Management – Calendar & Attendance',status:'off-track',notes:'Need to start pulling the data. Asking David for a query. Calendar: ensure 180 min. Attendance: ensure 162 days.'},
+    {id:117,owner:'Jennifer Alonso',quarter:'Q2',goalId:13,title:'Cohort Management – Clean up overage, under, inactive, elementary, etc.',status:'off-track',notes:'Work with David to create queries.'},
+    {id:118,owner:'Jennifer Alonso',quarter:'Q2',goalId:null,title:'Team Goal Setting Work',status:'on-track',notes:'Meet with team.'},
+    {id:119,owner:'Jennifer Alonso',quarter:'Q2',goalId:null,title:'NPR – Contract process',status:'off-track',notes:'Working with Traci.'},
+    {id:120,owner:'Jennifer Alonso',quarter:'Q2',goalId:null,title:'Grad Pathways Report',status:'off-track',notes:'Due July 1.'},
+    {id:121,owner:'Megha Juneja',quarter:'Q2',goalId:14,title:'Kick start Accountability model – Launchpad',status:'on-track',notes:''},
+    {id:122,owner:'Megha Juneja',quarter:'Q2',goalId:15,title:'Charter creation – Mastery Based Pilot',status:'on-track',notes:'Deliverables need to be finalized and additional stakeholders identified.'},
+    {id:123,owner:'Megha Juneja',quarter:'Q2',goalId:15,title:'Mastery Based – Application first draft',status:'off-track',notes:'Needs to start.'},
+    {id:124,owner:'Megha Juneja',quarter:'Q2',goalId:15,title:'Mastery Based – Rubric creation',status:'off-track',notes:''},
+    {id:125,owner:'Megha Juneja',quarter:'Q2',goalId:14,title:'Stakeholder Engagement – Working Groups',status:'on-track',notes:''},
+    {id:126,owner:'Megha Juneja',quarter:'Q2',goalId:14,title:'Hoosier Launch – learn the basics',status:'complete',notes:'Personal goal to understand the technicalities of this project more than a core requirement.'},
+    {id:127,owner:'Megha Juneja',quarter:'Q2',goalId:14,title:'Hoosier Launch – CHE collaboration',status:'off-track',notes:'Meet with stakeholders from CHE and determine engagement and involvement.'},
+    {id:128,owner:'Megha Juneja',quarter:'Q2',goalId:14,title:'Hoosier Launch – RFI process',status:'on-track',notes:''},
+    {id:129,owner:'Megha Juneja',quarter:'Q2',goalId:15,title:'Vendor Engagement – Mastery Based',status:'on-track',notes:''},
+    {id:130,owner:'Ron Sandlin',quarter:'Q2',goalId:17,title:'ESSA Waiver Implementation Plan (Part 1 & 2) – KJ approval on multi-year roll out',status:'not-started',notes:'KJ approval on multi-year roll out of Part 1 and Part 2 of ESEA Flex Waiver implementation plan.'},
+    {id:131,owner:'Ron Sandlin',quarter:'Q2',goalId:null,title:'Finalize HS Redesign Transition and shift burden of team management',status:'not-started',notes:'In Peoplesoft, members of the HS redesign team will be assigned to their final direct manager.'},
+    {id:132,owner:'Ron Sandlin',quarter:'Q2',goalId:16,title:'Finalize School Accountability Model',status:'not-started',notes:'SBOE Approval of School Accountability Model, USED endorsement of model, AG issues eliminated.'},
+    {id:133,owner:'Ron Sandlin',quarter:'Q2',goalId:17,title:'Federal Grant Management – SBMH, Project Aware, EWW',status:'not-started',notes:'PA: Data submissions final. SBMH: Subgrant submitted for Marian. EWW: SP approved for TMT; Contract submitted for TMT.'},
+  ],
+  priorities: [],
+  members: [
+    {id:1001,name:'Eva Gossard',team:'',isDirector:false,colorIdx:0},
+    {id:1002,name:'Georgia Watson',team:'',isDirector:false,colorIdx:1},
+    {id:1003,name:'Rebekah Frazer',team:'',isDirector:false,colorIdx:2},
+    {id:1004,name:'Vanessa Bachle',team:'',isDirector:false,colorIdx:3},
+    {id:1005,name:'Jennifer Alonso',team:'',isDirector:false,colorIdx:4},
+    {id:1006,name:'Megha Juneja',team:'',isDirector:false,colorIdx:5},
+    {id:1007,name:'Ron Sandlin',team:'',isDirector:false,colorIdx:6},
+  ],
+  nextId: 200,
+  modalType: null,
+  editId: null,
+  openMembers: {},
+  dashQ: 'Q2',
+  dashTeamFilter: [],
+  dashCollapsed: {},
+  filterOwner: '',
+};
+
+function populateFilters(){
+  ['goals','rocks','weekly'].forEach(tab=>{
+    const sel=document.getElementById(tab+'-filter-owner');
+    if(!sel) return;
+    sel.innerHTML='<option value="">All team members</option>';
+    state.members.forEach(m=>{sel.innerHTML+=`<option value="${m.name}"${m.name===state.filterOwner?' selected':''}>${m.name}</option>`});
+  });
+}
+
+function syncOwnerFilter(owner){
+  state.filterOwner=owner;
+  ['goals','rocks','weekly'].forEach(tab=>{
+    const sel=document.getElementById(tab+'-filter-owner');
+    if(sel) sel.value=owner;
+  });
+  if(document.getElementById('tab-goals').classList.contains('active')) renderGoals();
+  else if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
+  else if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
+}
+
+function clearGoalsFilters(){
+  document.getElementById('goals-filter-status').value='';
+  document.getElementById('goals-filter-team').value='';
+  syncOwnerFilter('');
+}
+function clearRocksFilters(){
+  document.getElementById('rocks-filter-q').value='';
+  document.getElementById('rocks-filter-status').value='';
+  document.getElementById('rocks-filter-team').value='';
+  syncOwnerFilter('');
+}
+function clearWeeklyFilters(){
+  document.getElementById('weekly-filter-team').value='';
+  syncOwnerFilter('');
+}
+function clearUpdatesFilters(){
+  document.getElementById('updates-filter-team').value='';
+  renderUpdates();
+}
+
+function toggleDashSection(key){
+  state.dashCollapsed[key]=!state.dashCollapsed[key];
+  renderDashboard();
+}
+function setDashTeamFilter(team){
+  if(team===''){
+    state.dashTeamFilter=[];
+  } else {
+    const i=state.dashTeamFilter.indexOf(team);
+    if(i>=0) state.dashTeamFilter.splice(i,1);
+    else state.dashTeamFilter.push(team);
+  }
+  renderDashboard();
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['dashboard','goals','rocks','updates','weekly'][i]===tab);
+  });
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  populateFilters();
+  const fns={dashboard:renderDashboard,goals:renderGoals,rocks:renderRocks,updates:renderUpdates,weekly:renderWeekly};
+  if(fns[tab]) fns[tab]();
+}
+
+function renderDashboard(){
+  const curQ = state.dashQ || 'Q2';
+  const dashTeams = state.dashTeamFilter;
+  const dc = state.dashCollapsed;
+  const allRocks = state.rocks.filter(r => r.quarter === curQ);
+  const goals = state.goals;
+  const doneG = goals.filter(g=>g.status==='done').length;
+  const filteredNames = dashTeams.length ? [...new Set(dashTeams.flatMap(t=>getTeamMembers(t)))] : null;
+
+  const qOpts = ['Q1','Q2','Q3','Q4'].map(q=>`<option value="${q}"${q===curQ?' selected':''}>${q}</option>`).join('');
+
+  // Section header: clickable label + collapse chevron
+  const sh = (key, label) => {
+    const open = !dc[key];
+    return `<div onclick="toggleDashSection('${key}')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:5px 0;margin-bottom:${open?'12px':'6px'}"><span style="font-size:13px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px">${label}</span><span style="color:var(--text-faint);display:flex;align-items:center;transform:${open?'':'rotate(-90deg)'};transition:transform .2s">${SVG.chevron}</span></div>`;
+  };
+
+  // Team filter pill buttons for Rock Status
+  const teamPills = ['','Innovation','OSST','High School Redesign','Project Management','Accountability','Leadership'].map(t=>{
+    const label = t==='' ? 'All' : t==='Leadership' ? 'Leadership Team' : t;
+    const on = t==='' ? dashTeams.length===0 : dashTeams.includes(t);
+    return `<button onclick="setDashTeamFilter('${t}')" style="padding:3px 12px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;border-radius:99px;border:1.5px solid ${on?'var(--accent)':'var(--border)'};background:${on?'var(--accent)':'var(--surface)'};color:${on?'#fff':'var(--text-muted)'};cursor:pointer;transition:all .15s;white-space:nowrap">${label}</button>`;
+  }).join('');
+
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px">Overview</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--text-muted)">Quarter:</span>
+      <select class="filter-select" style="height:30px;font-size:12px" onchange="state.dashQ=this.value;renderDashboard()">${qOpts}</select>
+      <button class="btn btn-primary" style="height:30px;font-size:12px" onclick="openModal('member')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add member</button>
+    </div>
+  </div>
+  ${sh('metrics','Metrics')}
+  ${!dc.metrics?`<div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Annual Goals</div><div class="metric-value">${doneG}<span style="font-family:'DM Sans';font-size:16px;color:var(--text-faint)">/${goals.length}</span></div></div>
+    <div class="metric-card"><div class="metric-label">Big Rocks (${curQ})</div><div class="metric-value">${allRocks.length}</div></div>
+    <div class="metric-card"><div class="metric-label">On Track</div><div class="metric-value success">${allRocks.filter(r=>r.status==='on-track').length}</div></div>
+    <div class="metric-card"><div class="metric-label">Off Track</div><div class="metric-value warn">${allRocks.filter(r=>r.status==='off-track').length}</div></div>
+  </div>`:''}
+  <div class="divider"></div>
+  ${sh('roster','Team Roster')}
+  ${!dc.roster?`<div class="roster-grid">${state.members.map(mbr=>{
+    const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}">${mbr.team}</span>`:'';
+    const dt=mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:'';
+    return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button></div>`;
+  }).join('')}</div>`:''}
+  <div class="divider"></div>
+  ${sh('rockStatus',`Rock Status — ${curQ}`)}
+  ${!dc.rockStatus?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">${teamPills}</div>`:''}`;
+
+  if(!dc.rockStatus){
+    state.members.forEach(mbr=>{
+      const m=mbr.name;
+      if(filteredNames&&!filteredNames.includes(m)) return;
+      const mr=allRocks.filter(r=>r.owner===m);
+      if(!mr.length) return;
+      const mOn=mr.filter(r=>r.status==='on-track').length;
+      const mOff=mr.filter(r=>r.status==='off-track').length;
+      const mDone=mr.filter(r=>r.status==='complete').length;
+      const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}" style="margin-left:6px">${mbr.team}</span>`:'';
+      const dt=mbr.isDirector?`<span class="team-tag team-leadership" style="margin-left:4px">Leadership</span>`:'';
+      html+=`<div class="person-row">${avatar(m)}<div style="flex:1;display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600">${m}${tt}${dt}</span><span style="font-size:12px;color:var(--text-faint)">${mr.length} rocks &nbsp;·&nbsp; <span style="color:var(--accent)">${mOn} on track</span>${mOff?` &nbsp;·&nbsp; <span style="color:var(--warn)">${mOff} off track</span>`:''}${mDone?` &nbsp;·&nbsp; <span style="color:var(--text-muted)">${mDone} complete</span>`:''}</span></div></div>`;
+    });
+  }
+
+  const offRocks=allRocks.filter(r=>r.status==='off-track'&&(!filteredNames||filteredNames.includes(r.owner)));
+  if(offRocks.length){
+    html+=`<div class="divider"></div>${sh('offTrack',`Off Track — ${curQ} (${offRocks.length})`)}`;
+    if(!dc.offTrack){
+      offRocks.forEach(r=>{
+        html+=`<div class="card off-track-card" style="padding:.85rem 1.1rem"><div style="display:flex;align-items:center;gap:10px">${avatar(r.owner)}<div style="flex:1"><div style="font-size:13px;font-weight:600">${r.title}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">${r.owner} &nbsp;·&nbsp; ${r.quarter}</div>${r.notes?`<div class="notes-tag">${r.notes}</div>`:''}</div>${getRockBadge(r.status)}</div></div>`;
+      });
+    }
+  }
+  document.getElementById('dashboard-content').innerHTML=html;
+}
+
+function renderGoals(){
+  const owner=document.getElementById('goals-filter-owner')?.value||'';
+  const status=document.getElementById('goals-filter-status')?.value||'';
+  const team=document.getElementById('goals-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  const goals=state.goals.filter(g=>(!owner||g.owner===owner)&&(!status||g.status===status)&&(!team||tm.includes(g.owner)));
+  const el=document.getElementById('goals-list');
+  if(!goals.length){el.innerHTML=`<div class="empty">${SVG.target}No goals found.</div>`;return;}
+  el.innerHTML=goals.map(g=>{
+    const lr=state.rocks.filter(r=>r.goalId===g.id);
+    const rocksHtml=lr.length?`<div class="child-rocks">${lr.map(r=>`<div class="child-rock-row"><span class="child-rock-q">${r.quarter}</span><span style="flex:1">${r.title}</span>${getRockBadge(r.status)}</div>`).join('')}</div>`:'';
+    return `<div class="card">
+      <div class="card-header">
+        <div style="display:flex;gap:12px;align-items:flex-start">${avatar(g.owner)}
+          <div><div class="card-title">${g.title}</div><div class="card-meta">${g.owner} &nbsp;·&nbsp; ${g.category} &nbsp;·&nbsp; ${g.metric}</div>${g.desc?`<div class="card-desc">${g.desc}</div>`:''}</div>
+        </div>
+        <div class="card-actions">${getGoalBadge(g.status)}<button class="icon-btn" onclick="editItem('goal',${g.id})" title="Edit">${SVG.pen}</button><button class="icon-btn" onclick="deleteItem('goal',${g.id})" title="Delete">${SVG.trash}</button></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${g.progress}%;background:${progressColor(g.status)}"></div></div>
+      <div class="progress-label">${g.progress}% complete</div>
+      ${rocksHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderRocks(){
+  const owner=document.getElementById('rocks-filter-owner')?.value||'';
+  const q=document.getElementById('rocks-filter-q')?.value||'';
+  const st=document.getElementById('rocks-filter-status')?.value||'';
+  const team=document.getElementById('rocks-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  const rocks=state.rocks.filter(r=>(!owner||r.owner===owner)&&(!q||r.quarter===q)&&(!st||r.status===st)&&(!team||tm.includes(r.owner)));
+  const el=document.getElementById('rocks-list');
+  if(!rocks.length){el.innerHTML=`<div class="empty">${SVG.layers}No rocks found.</div>`;return;}
+  el.innerHTML=rocks.map(r=>{
+    const g=state.goals.find(g=>g.id===r.goalId);
+    return `<div class="card">
+      <div class="card-header">
+        <div style="display:flex;gap:12px;align-items:flex-start">${avatar(r.owner)}
+          <div><div class="card-title">${r.title}</div>
+          <div class="card-meta">${r.owner} &nbsp;·&nbsp; ${r.quarter}${g?` &nbsp;·&nbsp; <span style="color:var(--info)">↑ ${g.title.slice(0,55)}${g.title.length>55?'…':''}</span>`:''}</div>
+          ${r.notes?`<div class="card-desc">${r.notes}</div>`:''}</div>
+        </div>
+        <div class="card-actions">${getRockBadge(r.status)}<button class="icon-btn" onclick="editItem('rock',${r.id})" title="Edit">${SVG.pen}</button><button class="icon-btn" onclick="deleteItem('rock',${r.id})" title="Delete">${SVG.trash}</button></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderUpdates(){
+  const el=document.getElementById('updates-content');
+  const team=document.getElementById('updates-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  let html=`<p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">Update the status and notes for each of your big rocks below. Changes are reflected immediately on the dashboard.</p>`;
+  state.members.forEach(mbr=>{
+    const m=mbr.name;
+    if(team&&!tm.includes(m)) return;
+    const mr=state.rocks.filter(r=>r.owner===m);
+    if(!mr.length) return;
+    const isOpen=state.openMembers[m]!==false;
+    const onT=mr.filter(r=>r.status==='on-track'||r.status==='complete').length;
+    const key=m.replace(/ /g,'_');
+    html+=`<div class="member-card">
+      <div class="member-header" onclick="toggleMember('${m}')">
+        ${avatar(m,true)}
+        <div style="flex:1"><div class="member-name">${m}</div><div class="member-meta">${mr.length} rocks &nbsp;·&nbsp; ${onT} on track or complete</div></div>
+        <div class="chevron${isOpen?' open':''}" id="chev-${key}" style="transition:transform .2s;display:flex;align-items:center">${SVG.chevron}</div>
+      </div>
+      <div class="member-body" id="body-${key}" style="${isOpen?'':'display:none'}">
+        ${mr.map(r=>`<div class="rock-update-row">
+          <div>
+            <div class="rock-update-name">${r.title}</div>
+            <div class="rock-update-quarter">${r.quarter}</div>
+            <textarea class="update-textarea" id="notes-${r.id}" placeholder="Add notes or reflections…">${r.notes||''}</textarea>
+          </div>
+          <select class="inline-select" id="status-${r.id}" onchange="quickSave(${r.id})">
+            <option value="on-track"${r.status==='on-track'?' selected':''}>On track</option>
+            <option value="off-track"${r.status==='off-track'?' selected':''}>Off track</option>
+            <option value="complete"${r.status==='complete'?' selected':''}>Complete</option>
+            <option value="not-started"${r.status==='not-started'?' selected':''}>Not started</option>
+          </select>
+          <button class="save-btn" id="savebtn-${r.id}" onclick="quickSave(${r.id})">Save</button>
+          <div class="update-notes-strip">
+            <div class="notes-section-hdr">Notes</div>
+            <div class="notes-list" id="updnote-list-${r.id}">${renderNotesHTML(r.noteHistory||[])}</div>
+            <div class="note-add-row">
+              <textarea class="note-input" id="updnote-${r.id}" placeholder="Add a note…"></textarea>
+              <button class="note-add-btn" onclick="addUpdateNote(${r.id})">Add note</button>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function toggleMember(m){
+  const key=m.replace(/ /g,'_');
+  const body=document.getElementById('body-'+key);
+  const chev=document.getElementById('chev-'+key);
+  const isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  chev.style.transform=isOpen?'':'rotate(180deg)';
+  state.openMembers[m]=!isOpen;
+}
+
+function quickSave(id){
+  const r=state.rocks.find(r=>r.id===id);
+  if(!r) return;
+  const sEl=document.getElementById('status-'+id);
+  const nEl=document.getElementById('notes-'+id);
+  const btn=document.getElementById('savebtn-'+id);
+  if(sEl) r.status=sEl.value;
+  if(nEl) r.notes=nEl.value;
+  if(btn){ btn.textContent='Saved ✓'; btn.classList.add('saved'); setTimeout(()=>{btn.textContent='Save';btn.classList.remove('saved');},1800); }
+  if(document.getElementById('tab-dashboard').classList.contains('active')) renderDashboard();
+  if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
+}
+
+function renderWeekly(){
+  const owner=document.getElementById('weekly-filter-owner')?.value||'';
+  const team=document.getElementById('weekly-filter-team')?.value||'';
+  const tm=getTeamMembers(team);
+  const priorities=state.priorities.filter(p=>(!owner||p.owner===owner)&&(!team||tm.includes(p.owner)));
+  const el=document.getElementById('weekly-list');
+  if(!priorities.length){el.innerHTML=`<div class="empty">${SVG.calendar}No priorities yet. Add this week's top items!</div>`;return;}
+  const byWeek={};
+  priorities.forEach(p=>{byWeek[p.weekOf]=byWeek[p.weekOf]||[];byWeek[p.weekOf].push(p);});
+  el.innerHTML=Object.keys(byWeek).sort().reverse().map(w=>{
+    const dt=new Date(w+'T00:00:00');
+    const wl=`Week of ${dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+    const byOwner={};
+    byWeek[w].forEach(p=>{byOwner[p.owner]=byOwner[p.owner]||[];byOwner[p.owner].push(p);});
+    return `<div class="week-label">${wl}</div>`+Object.keys(byOwner).map(own=>`
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avatar(own)}<span style="font-size:14px;font-weight:600">${own}</span></div>
+        ${byOwner[own].map(p=>{
+          const rock=state.rocks.find(r=>r.id===p.rockId);
+          return `<div class="priority-row">
+            <div class="checkbox${p.done?' done':''}" onclick="togglePri(${p.id})">${p.done?SVG.check:''}</div>
+            <div style="flex:1"><div class="priority-text${p.done?' done':''}">${p.text}</div>${rock?`<div class="priority-rock-link">→ ${rock.title}</div>`:''}</div>
+            <button class="icon-btn" onclick="deleteItem('priority',${p.id})" title="Delete">${SVG.trash}</button>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+  }).join('');
+}
+
+function togglePri(id){
+  const p=state.priorities.find(p=>p.id===id); if(p) p.done=!p.done; renderWeekly();
+}
+
+function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+function buildGoalOpts(owner, selectedGoalId){
+  const ownerGoals = state.goals.filter(g => g.owner === owner);
+  const opts = ownerGoals.map(g =>
+    `<option value="${g.id}"${g.id===selectedGoalId?' selected':''}>${g.title.slice(0,55)}${g.title.length>55?'…':''}</option>`
+  ).join('');
+  const otherSel = selectedGoalId==='other' ? ' selected' : '';
+  return `<option value="">None</option>${opts}<option value="other"${otherSel}>Other</option>`;
+}
+
+function formatTs(){
+  const d=new Date();
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+}
+function renderNotesHTML(notes){
+  if(!notes||!notes.length) return '<div class="notes-empty">No notes yet.</div>';
+  return notes.map(n=>`<div class="note-item"><div class="note-ts">${n.ts}</div><div class="note-text">${esc(n.text)}</div></div>`).join('');
+}
+function notesSection(notes){
+  return `<div class="divider"></div><div><div class="notes-section-hdr">Notes</div><div class="notes-list" id="modal-notes-list">${renderNotesHTML(notes)}</div><div class="note-add-row"><textarea class="note-input" id="f-new-note" placeholder="Add a note…"></textarea><button class="note-add-btn" onclick="addModalNote()">Add note</button></div></div>`;
+}
+function addModalNote(){
+  const type=state.modalType; const id=state.editId;
+  if(!id) return;
+  const nEl=document.getElementById('f-new-note');
+  const text=(nEl?.value||'').trim(); if(!text) return;
+  let item;
+  if(type==='goal') item=state.goals.find(g=>g.id===id);
+  else if(type==='rock') item=state.rocks.find(r=>r.id===id);
+  else item=state.priorities.find(p=>p.id===id);
+  if(!item) return;
+  if(!item.noteHistory) item.noteHistory=[];
+  item.noteHistory.unshift({text,ts:formatTs()});
+  nEl.value='';
+  const listEl=document.getElementById('modal-notes-list');
+  if(listEl) listEl.innerHTML=renderNotesHTML(item.noteHistory);
+  scheduleSave();
+}
+function addUpdateNote(rockId){
+  const r=state.rocks.find(r=>r.id===rockId); if(!r) return;
+  const nEl=document.getElementById('updnote-'+rockId);
+  const text=(nEl?.value||'').trim(); if(!text) return;
+  if(!r.noteHistory) r.noteHistory=[];
+  r.noteHistory.unshift({text,ts:formatTs()});
+  nEl.value='';
+  const listEl=document.getElementById('updnote-list-'+rockId);
+  if(listEl) listEl.innerHTML=renderNotesHTML(r.noteHistory);
+  scheduleSave();
+}
+
+function buildRockOpts(owner, selectedRockId){
+  const ownerRocks = state.rocks.filter(r => r.owner === owner);
+  const opts = ownerRocks.map(r =>
+    `<option value="${r.id}"${r.id===selectedRockId?' selected':''}>${r.quarter} — ${r.title.slice(0,50)}${r.title.length>50?'…':''}</option>`
+  ).join('');
+  const otherSel = selectedRockId==='other' ? ' selected' : '';
+  return `<option value="">None</option>${opts}<option value="other"${otherSel}>Other</option>`;
+}
+
+function memberOwnerOpts(sel){ return state.members.map(m=>`<option value="${m.name}"${m.name===sel?' selected':''}>${m.name}</option>`).join(''); }
+
+function openModal(type, id=null, preOwner=''){
+  state.modalType=type; state.editId=id;
+  const titles={goal:'Edit goal',rock:'Edit rock',priority:'Edit priority',member:'Edit team member'};
+  const addTitles={goal:'Add annual goal',rock:'Add big rock',priority:'Add weekly priority',member:'Add team member'};
+  document.getElementById('modal-title').textContent=id?titles[type]:addTitles[type];
+  let body='';
+  if(type==='goal'){
+    const g=id?state.goals.find(g=>g.id===id):{};
+    const sel=g.owner||preOwner||(state.members[0]?.name||'');
+    body=`<div class="field"><label>Owner</label><select id="f-owner">${memberOwnerOpts(sel)}</select></div>
+    <div class="field"><label>Goal title</label><input type="text" id="f-title" value="${esc(g.title)}"></div>
+    <div class="field"><label>Category</label><input type="text" id="f-category" value="${esc(g.category)}"></div>
+    <div class="field"><label>Target metric</label><input type="text" id="f-metric" value="${esc(g.metric)}"></div>
+    <div class="field"><label>Description</label><textarea id="f-desc">${g.desc||''}</textarea></div>
+    <div class="field"><label>Status</label><select id="f-status"><option value="not-started"${(!g.status||g.status==='not-started')?' selected':''}>Not started</option><option value="on-track"${g.status==='on-track'?' selected':''}>On track</option><option value="at-risk"${g.status==='at-risk'?' selected':''}>At risk</option><option value="done"${g.status==='done'?' selected':''}>Done</option></select></div>
+    <div class="field"><label>Progress (<span id="prog-lbl">${g.progress||0}</span>%)</label><input type="range" id="f-progress" min="0" max="100" step="1" value="${g.progress||0}" oninput="document.getElementById('prog-lbl').textContent=this.value" style="width:100%;height:6px;cursor:pointer"></div>`;
+  } else if(type==='rock'){
+    const r=id?state.rocks.find(r=>r.id===id):{};
+    const sel=r.owner||preOwner||(state.members[0]?.name||'');
+    const linkedGoalId = r.goalId || '';
+    body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshRockGoals()">${memberOwnerOpts(sel)}</select></div>
+    <div class="field"><label>Rock title</label><input type="text" id="f-title" value="${esc(r.title)}"></div>
+    <div class="field"><label>Quarter</label><select id="f-quarter"><option value="Q1"${r.quarter==='Q1'?' selected':''}>Q1</option><option value="Q2"${(!r.quarter||r.quarter==='Q2')?' selected':''}>Q2</option><option value="Q3"${r.quarter==='Q3'?' selected':''}>Q3</option><option value="Q4"${r.quarter==='Q4'?' selected':''}>Q4</option></select></div>
+    <div class="field"><label>Linked annual goal</label><select id="f-goalId">${buildGoalOpts(sel, linkedGoalId)}</select></div>
+    <div class="field"><label>Status</label><select id="f-status"><option value="not-started"${(!r.status||r.status==='not-started')?' selected':''}>Not started</option><option value="on-track"${r.status==='on-track'?' selected':''}>On track</option><option value="off-track"${r.status==='off-track'?' selected':''}>Off track</option><option value="complete"${r.status==='complete'?' selected':''}>Complete</option></select></div>
+    <div class="field"><label>Notes / Reflections</label><textarea id="f-notes">${r.notes||''}</textarea></div>`;
+  } else if(type==='priority'){
+    const p=id?state.priorities.find(p=>p.id===id):{};
+    const sel=p.owner||preOwner||(state.members[0]?.name||'');
+    body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshPriorityRocks()">${memberOwnerOpts(sel)}</select></div>
+    <div class="field"><label>Priority</label><input type="text" id="f-title" value="${esc(p.text)}" placeholder="e.g. Draft Q2 policy memo"></div>
+    <div class="field"><label>Week of</label><input type="date" id="f-week" value="${p.weekOf||'2026-05-11'}"></div>
+    <div class="field"><label>Linked rock (optional)</label><select id="f-rockId">${buildRockOpts(sel, p.rockId||'')}</select></div>`;
+  } else if(type==='member'){
+    const mbr=id?state.members.find(m=>m.id===id):{};
+    const teamSel=mbr.team||'';
+    body=`<div class="field"><label>Name</label><input type="text" id="f-name" value="${esc(mbr.name)}" placeholder="Full name"></div>
+    <div class="field"><label>Team <span style="font-weight:400;text-transform:none;font-size:12px">(optional)</span></label><select id="f-team">
+      <option value="">No team assigned</option>
+      ${TEAMS.map(t=>`<option value="${t}"${t===teamSel?' selected':''}>${t}</option>`).join('')}
+    </select></div>
+    <div class="field" style="margin-top:4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--text)">
+      <input type="checkbox" id="f-director" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)"${mbr.isDirector?' checked':''}> Director / Assistant Director
+    </label><div style="font-size:11px;color:var(--text-faint);margin-top:3px;margin-left:24px">Adds this person to the Leadership Team filter in addition to their assigned team.</div></div>`;
+  }
+  if(id && type!=='member'){
+    let item;
+    if(type==='goal') item=state.goals.find(g=>g.id===id);
+    else if(type==='rock') item=state.rocks.find(r=>r.id===id);
+    else item=state.priorities.find(p=>p.id===id);
+    if(item) body+=notesSection(item.noteHistory||[]);
+  }
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+function refreshRockGoals(){
+  const owner = document.getElementById('f-owner')?.value;
+  const sel = document.getElementById('f-goalId');
+  if(owner && sel) sel.innerHTML = buildGoalOpts(owner, '');
+}
+function refreshPriorityRocks(){
+  const owner = document.getElementById('f-owner')?.value;
+  const sel = document.getElementById('f-rockId');
+  if(owner && sel) sel.innerHTML = buildRockOpts(owner, '');
+}
+function handleModalBgClick(e){if(e.target===document.getElementById('modal-bg')) closeModal();}
+
+function saveModal(){
+  const type=state.modalType; const id=state.editId;
+  if(type==='goal'){
+    const data={owner:document.getElementById('f-owner').value,title:document.getElementById('f-title').value,category:document.getElementById('f-category').value,metric:document.getElementById('f-metric').value,desc:document.getElementById('f-desc').value,status:document.getElementById('f-status').value,progress:parseInt(document.getElementById('f-progress').value)};
+    if(!data.title) return;
+    if(id) Object.assign(state.goals.find(g=>g.id===id),data); else state.goals.push({id:state.nextId++,...data});
+    renderGoals();
+  } else if(type==='rock'){
+    const gId=document.getElementById('f-goalId').value;
+    const data={owner:document.getElementById('f-owner').value,title:document.getElementById('f-title').value,quarter:document.getElementById('f-quarter').value,goalId:(gId&&gId!=='other')?parseInt(gId):null,status:document.getElementById('f-status').value,notes:document.getElementById('f-notes').value};
+    if(!data.title) return;
+    if(id) Object.assign(state.rocks.find(r=>r.id===id),data); else state.rocks.push({id:state.nextId++,...data});
+    renderRocks();
+    if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
+  } else if(type==='priority'){
+    const rId=document.getElementById('f-rockId').value;
+    const data={owner:document.getElementById('f-owner').value,text:document.getElementById('f-title').value,weekOf:document.getElementById('f-week').value||'2026-05-11',rockId:(rId&&rId!=='other')?parseInt(rId):null,done:false};
+    if(!data.text) return;
+    if(id) Object.assign(state.priorities.find(p=>p.id===id),data); else state.priorities.push({id:state.nextId++,...data});
+    renderWeekly();
+  } else if(type==='member'){
+    const name=document.getElementById('f-name').value.trim();
+    if(!name) return;
+    const team=document.getElementById('f-team').value;
+    const isDirector=document.getElementById('f-director').checked;
+    if(id){
+      const mbr=state.members.find(m=>m.id===id);
+      if(mbr){
+        if(mbr.name!==name){
+          state.goals.forEach(g=>{if(g.owner===mbr.name)g.owner=name;});
+          state.rocks.forEach(r=>{if(r.owner===mbr.name)r.owner=name;});
+          state.priorities.forEach(p=>{if(p.owner===mbr.name)p.owner=name;});
+        }
+        Object.assign(mbr,{name,team,isDirector});
+      }
+    } else {
+      const colorIdx=state.members.length%AVATAR_BG.length;
+      state.members.push({id:state.nextId++,name,team,isDirector,colorIdx});
+    }
+  }
+  closeModal(); populateFilters();
+  renderDashboard();
+  if(document.getElementById('tab-goals').classList.contains('active')) renderGoals();
+  if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
+  if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
+  if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
+}
+
+function editItem(type,id){openModal(type,id);}
+function deleteItem(type,id){
+  if(type==='goal') state.goals=state.goals.filter(g=>g.id!==id);
+  if(type==='rock') state.rocks=state.rocks.filter(r=>r.id!==id);
+  if(type==='priority') state.priorities=state.priorities.filter(p=>p.id!==id);
+  renderGoals(); renderRocks(); renderWeekly();
+  if(document.getElementById('tab-dashboard').classList.contains('active')) renderDashboard();
+}
+
+// ── Persistence ──────────────────────────────────────────────────────────────
+
+let saveTimer = null;
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 800);
+}
+
+async function saveData() {
+  const payload = {
+    goals: state.goals,
+    rocks: state.rocks,
+    priorities: state.priorities,
+    members: state.members,
+    nextId: state.nextId,
+  };
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) showSaveIndicator('Saved');
+    else showSaveIndicator('Save failed', true);
+  } catch {
+    showSaveIndicator('Offline — not saved', true);
+  }
+}
+
+function showSaveIndicator(msg, error = false) {
+  let el = document.getElementById('save-indicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-indicator';
+    el.style.cssText = 'position:fixed;bottom:1.25rem;right:1.25rem;font-size:12px;font-weight:600;padding:6px 14px;border-radius:99px;z-index:999;transition:opacity .4s;pointer-events:none';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = error ? 'var(--danger-light)' : 'var(--done-bg)';
+  el.style.color = error ? 'var(--danger)' : 'var(--done-text)';
+  el.style.opacity = '1';
+  clearTimeout(el._hide);
+  el._hide = setTimeout(() => { el.style.opacity = '0'; }, 2200);
+}
+
+// Wrap mutating functions to trigger autosave
+const _origSave = saveModal;
+saveModal = function() { _origSave(); scheduleSave(); };
+const _origDelete = deleteItem;
+deleteItem = function(type, id) { _origDelete(type, id); scheduleSave(); };
+const _origTogglePri = togglePri;
+togglePri = function(id) { _origTogglePri(id); scheduleSave(); };
+const _origQuickSave = quickSave;
+quickSave = function(id) { _origQuickSave(id); scheduleSave(); };
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+
+async function boot() {
+  try {
+    const res = await fetch('/api/data');
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved) {
+        state.goals     = saved.goals     ?? state.goals;
+        state.rocks     = saved.rocks     ?? state.rocks;
+        state.priorities= saved.priorities?? state.priorities;
+        state.members   = saved.members   ?? state.members;
+        state.nextId    = saved.nextId    ?? state.nextId;
+      }
+    }
+  } catch {
+    // Server not reachable — run with defaults
+  }
+  populateFilters();
+  renderDashboard();
+}
+
+boot();
+</script>
+</body>
+</html>
