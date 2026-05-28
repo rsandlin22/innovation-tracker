@@ -704,9 +704,15 @@
 </div>
 
 <script>
-const TEAMS = ['Innovation','OSST','High School Redesign','Project Management','Accountability'];
 const AVATAR_BG = ['#EDE9FB','#D8F0E6','#FDE8DC','#FDE8EF','#DDEAF8','#FEF1D8','#E5F1DC','#F0EAD6','#DCF0F0','#F0DCF0'];
 const AVATAR_FG = ['#4A3FA0','#145C38','#7A2E10','#7A1A3C','#174E8A','#6B3E06','#285210','#5C4A1A','#145C5C','#5C145C'];
+// Color palette for team tags — cycles for new teams
+const TEAM_COLORS = [
+  {bg:'#EDE9FB',fg:'#4A3FA0'},{bg:'#D8F0E6',fg:'#145C38'},{bg:'#DDEAF8',fg:'#174E8A'},
+  {bg:'#FDE8EF',fg:'#7A1A3C'},{bg:'#F0EAD6',fg:'#5C4A1A'},{bg:'#DCF0F0',fg:'#145C5C'},
+  {bg:'#FDE8DC',fg:'#7A2E10'},{bg:'#E5F1DC',fg:'#285210'},{bg:'#FEF1D8',fg:'#6B3E06'},
+  {bg:'#F0DCF0',fg:'#5C145C'},
+];
 
 function mi(n){ const m=state.members.find(m=>m.name===n); return m?m.colorIdx:-1; }
 function getTeamMembers(team){
@@ -714,14 +720,22 @@ function getTeamMembers(team){
   if(team==='Leadership') return state.members.filter(m=>m.isDirector).map(m=>m.name);
   return state.members.filter(m=>m.team===team).map(m=>m.name);
 }
-function getTeamClass(team){
-  if(team==='Innovation') return 'team-innovation';
-  if(team==='OSST') return 'team-osst';
-  if(team==='High School Redesign') return 'team-hs';
-  if(team==='Project Management') return 'team-pm';
-  if(team==='Accountability') return 'team-accountability';
-  return '';
+// Returns inline style string for any team (old or newly added)
+function getTeamStyle(name){
+  if(!name) return '';
+  const t=state.teams.find(t=>t.name===name);
+  if(!t) return '';
+  const c=TEAM_COLORS[t.colorIdx%TEAM_COLORS.length];
+  return `background:${c.bg};color:${c.fg}`;
 }
+// Renders a full team tag span — works for all teams
+function teamTagHtml(name, extraStyle=''){
+  if(!name) return '';
+  const s=getTeamStyle(name);
+  return `<span class="team-tag" style="${s}${extraStyle?';'+extraStyle:''}">${name}</span>`;
+}
+// Legacy helper — kept so existing render code that checks class still works
+function getTeamClass(team){ return ''; }
 function avatar(name,lg){
   const i=mi(name); const p=name.trim().split(' ');
   const init=(p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();
@@ -827,6 +841,13 @@ const state = {
     {id:1006,name:'Megha Juneja',team:'',isDirector:false,colorIdx:5},
     {id:1007,name:'Ron Sandlin',team:'',isDirector:false,colorIdx:6},
   ],
+  teams: [
+    {id:3001,name:'Innovation',colorIdx:0},
+    {id:3002,name:'OSST',colorIdx:1},
+    {id:3003,name:'High School Redesign',colorIdx:2},
+    {id:3004,name:'Project Management',colorIdx:3},
+    {id:3005,name:'Accountability',colorIdx:4},
+  ],
   nextId: 200,
   modalType: null,
   editId: null,
@@ -847,6 +868,17 @@ function populateFilters(){
     if(!sel) return;
     sel.innerHTML='<option value="">All team members</option>';
     state.members.forEach(m=>{sel.innerHTML+=`<option value="${m.name}"${m.name===state.filterOwner?' selected':''}>${m.name}</option>`});
+  });
+  populateTeamFilters();
+}
+
+function populateTeamFilters(){
+  const teamOpts=(cur)=>'<option value="">All teams</option>'+
+    state.teams.map(t=>`<option value="${t.name}"${t.name===cur?' selected':''}>${t.name}</option>`).join('')+
+    `<option value="Leadership"${cur==='Leadership'?' selected':''}>Leadership Team</option>`;
+  ['goals-filter-team','rocks-filter-team','updates-filter-team','weekly-filter-team'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML=teamOpts(el.value);
   });
 }
 
@@ -924,8 +956,8 @@ function renderDashboard(){
     return `<div onclick="toggleDashSection('${key}')" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:5px 0;margin-bottom:${open?'12px':'6px'}"><span style="font-size:13px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px">${label}</span><span style="color:var(--text-faint);display:flex;align-items:center;transform:${open?'':'rotate(-90deg)'};transition:transform .2s">${SVG.chevron}</span></div>`;
   };
 
-  // Team filter pill buttons for Rock Status
-  const teamPills = ['','Innovation','OSST','High School Redesign','Project Management','Accountability','Leadership'].map(t=>{
+  // Team filter pill buttons for Rock Status — dynamic from state.teams
+  const teamPills = ['',...state.teams.map(t=>t.name),'Leadership'].map(t=>{
     const label = t==='' ? 'All' : t==='Leadership' ? 'Leadership Team' : t;
     const on = t==='' ? dashTeams.length===0 : dashTeams.includes(t);
     return `<button onclick="setDashTeamFilter('${t}')" style="padding:3px 12px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;border-radius:99px;border:1.5px solid ${on?'var(--accent)':'var(--border)'};background:${on?'var(--accent)':'var(--surface)'};color:${on?'#fff':'var(--text-muted)'};cursor:pointer;transition:all .15s;white-space:nowrap">${label}</button>`;
@@ -936,6 +968,7 @@ function renderDashboard(){
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span style="font-size:12px;color:var(--text-muted)">Quarter:</span>
       <select class="filter-select" style="height:30px;font-size:12px" onchange="state.dashQ=this.value;renderDashboard()">${qOpts}</select>
+      <button class="btn" style="height:30px;font-size:12px" onclick="openModal('teams')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Manage teams</button>
       <button class="btn btn-primary" style="height:30px;font-size:12px" onclick="openModal('member')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add member</button>
     </div>
   </div>
@@ -949,7 +982,7 @@ function renderDashboard(){
   <div class="divider"></div>
   ${sh('roster','Team Roster')}
   ${!dc.roster?`<div class="roster-grid">${state.members.map(mbr=>{
-    const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}">${mbr.team}</span>`:'';
+    const tt=teamTagHtml(mbr.team);
     const dt=mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:'';
     return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><div class="roster-actions"><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button><button class="icon-btn" onclick="deleteMember(${mbr.id})" title="Remove member" style="color:var(--danger)">${SVG.trash}</button></div></div>`;
   }).join('')}</div>`:''}
@@ -966,7 +999,7 @@ function renderDashboard(){
       const mOn=mr.filter(r=>r.status==='on-track').length;
       const mOff=mr.filter(r=>r.status==='off-track').length;
       const mDone=mr.filter(r=>r.status==='complete').length;
-      const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}" style="margin-left:6px">${mbr.team}</span>`:'';
+      const tt=teamTagHtml(mbr.team,'margin-left:6px');
       const dt=mbr.isDirector?`<span class="team-tag team-leadership" style="margin-left:4px">Leadership</span>`:'';
       html+=`<div class="person-row">${avatar(m)}<div style="flex:1;display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600">${m}${tt}${dt}</span><span style="font-size:12px;color:var(--text-faint)">${mr.length} rocks &nbsp;·&nbsp; <span style="color:var(--accent)">${mOn} on track</span>${mOff?` &nbsp;·&nbsp; <span style="color:var(--warn)">${mOff} off track</span>`:''}${mDone?` &nbsp;·&nbsp; <span style="color:var(--text-muted)">${mDone} complete</span>`:''}</span></div></div>`;
     });
@@ -1201,8 +1234,8 @@ function memberOwnerOpts(sel){ return state.members.map(m=>`<option value="${m.n
 
 function openModal(type, id=null, preOwner=''){
   state.modalType=type; state.editId=id;
-  const titles={goal:'Edit goal',rock:'Edit rock',priority:'Edit priority',member:'Edit team member'};
-  const addTitles={goal:'Add annual goal',rock:'Add big rock',priority:'Add weekly priority',member:'Add team member'};
+  const titles={goal:'Edit goal',rock:'Edit rock',priority:'Edit priority',member:'Edit team member',teams:'Manage Teams'};
+  const addTitles={goal:'Add annual goal',rock:'Add big rock',priority:'Add weekly priority',member:'Add team member',teams:'Manage Teams'};
   document.getElementById('modal-title').textContent=id?titles[type]:addTitles[type];
   let body='';
   if(type==='goal'){
@@ -1238,13 +1271,18 @@ function openModal(type, id=null, preOwner=''){
     body=`<div class="field"><label>Name</label><input type="text" id="f-name" value="${esc(mbr.name)}" placeholder="Full name"></div>
     <div class="field"><label>Team <span style="font-weight:400;text-transform:none;font-size:12px">(optional)</span></label><select id="f-team">
       <option value="">No team assigned</option>
-      ${TEAMS.map(t=>`<option value="${t}"${t===teamSel?' selected':''}>${t}</option>`).join('')}
+      ${state.teams.map(t=>`<option value="${t.name}"${t.name===teamSel?' selected':''}>${t.name}</option>`).join('')}
     </select></div>
     <div class="field" style="margin-top:4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--text)">
       <input type="checkbox" id="f-director" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)"${mbr.isDirector?' checked':''}> Director / Assistant Director
     </label><div style="font-size:11px;color:var(--text-faint);margin-top:3px;margin-left:24px">Adds this person to the Leadership Team filter in addition to their assigned team.</div></div>`;
+  } else if(type==='teams'){
+    body=buildTeamsModalBody();
   }
-  if(id && type!=='member'){
+  // Hide Save button for teams modal — changes apply immediately
+  const saveBtn=document.querySelector('.modal-actions .btn-primary');
+  if(saveBtn){ saveBtn.style.display = type==='teams'?'none':''; }
+  if(id && type!=='member' && type!=='teams'){
     let item;
     if(type==='goal') item=state.goals.find(g=>g.id===id);
     else if(type==='rock') item=state.rocks.find(r=>r.id===id);
@@ -1270,6 +1308,7 @@ function handleModalBgClick(e){if(e.target===document.getElementById('modal-bg')
 
 function saveModal(){
   const type=state.modalType; const id=state.editId;
+  if(type==='teams'){ closeModal(); return; }
   if(type==='goal'){
     const data={owner:document.getElementById('f-owner').value,title:document.getElementById('f-title').value,category:document.getElementById('f-category').value,metric:document.getElementById('f-metric').value,desc:document.getElementById('f-desc').value,status:document.getElementById('f-status').value,progress:parseInt(document.getElementById('f-progress').value)};
     if(!data.title) return;
@@ -1314,6 +1353,58 @@ function saveModal(){
   if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
   if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
   if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
+}
+
+// ── Team management (Manage Teams modal) ─────────────────────────────────────
+function buildTeamsModalBody(){
+  const rows = state.teams.map(t=>{
+    const s = getTeamStyle(t.name);
+    const mc = state.members.filter(m=>m.team===t.name).length;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span class="team-tag" style="${s};font-size:12px;padding:3px 10px">${t.name}</span>
+      <span style="font-size:12px;color:var(--text-faint);flex:1">${mc} member${mc!==1?'s':''}</span>
+      <button class="icon-btn" onclick="deleteTeamInline(${t.id})" title="Delete team" style="color:var(--danger)">${SVG.trash}</button>
+    </div>`;
+  }).join('');
+  return `<div style="margin-bottom:4px">${rows||'<div style="font-size:13px;color:var(--text-faint);padding:8px 0">No teams yet.</div>'}</div>
+    <div class="divider"></div>
+    <div class="field">
+      <label>Add New Team</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="f-new-team" placeholder="Team name…" onkeydown="if(event.key==='Enter')addTeamInline()" style="flex:1;height:38px;padding:0 11px;font-size:14px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s">
+        <button class="btn btn-primary" onclick="addTeamInline()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>
+      </div>
+    </div>`;
+}
+
+function addTeamInline(){
+  const input=document.getElementById('f-new-team');
+  const name=(input?.value||'').trim(); if(!name) return;
+  if(state.teams.find(t=>t.name.toLowerCase()===name.toLowerCase())){
+    input.style.borderColor='var(--danger)'; input.title='A team with that name already exists.'; return;
+  }
+  input.style.borderColor=''; input.title='';
+  const colorIdx=state.teams.length%TEAM_COLORS.length;
+  state.teams.push({id:state.nextId++,name,colorIdx});
+  input.value='';
+  document.getElementById('modal-body').innerHTML=buildTeamsModalBody();
+  document.getElementById('f-new-team').focus();
+  populateTeamFilters();
+  renderDashboard();
+  scheduleSave();
+}
+
+function deleteTeamInline(id){
+  const t=state.teams.find(t=>t.id===id); if(!t) return;
+  const mc=state.members.filter(m=>m.team===t.name).length;
+  const msg=mc?`Delete "${t.name}"?\n\n${mc} member${mc!==1?'s':''} will be unassigned from this team.`:`Delete "${t.name}"?`;
+  if(!confirm(msg)) return;
+  state.teams=state.teams.filter(t=>t.id!==id);
+  state.members.forEach(m=>{ if(m.team===t.name) m.team=''; });
+  document.getElementById('modal-body').innerHTML=buildTeamsModalBody();
+  populateTeamFilters();
+  renderDashboard();
+  scheduleSave();
 }
 
 function editItem(type,id){openModal(type,id);}
@@ -1450,10 +1541,9 @@ function renderReportOffTrack(){
   } else {
     teamsWithData.forEach(team=>{
       const rocks=teamGroups[team];
-      const tc=getTeamClass(team);
       html+=`<div style="margin-bottom:1.5rem">
         <div style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.5px;padding:8px 0 6px;border-bottom:2px solid var(--border);margin-bottom:4px;display:flex;align-items:center;gap:8px">
-          ${team!=='No Team'?`<span class="team-tag ${tc}">${team}</span>`:'<span>No Team</span>'}
+          ${team!=='No Team'?teamTagHtml(team):'<span>No Team</span>'}
           <span style="font-weight:400">· ${rocks.length} rock${rocks.length!==1?'s':''}</span>
         </div>
         <table class="report-table"><thead><tr><th>Owner</th><th>Rock</th><th>Notes</th><th>Latest Note</th></tr></thead>
@@ -1501,9 +1591,8 @@ function renderReportTeamCompletion(){
     <tbody>${results.map(r=>{
       const pct=r.total?Math.round(((r.onTrack+r.complete)/r.total)*100):0;
       const hc=pct>=75?'var(--accent)':pct>=50?'var(--warn)':'var(--danger)';
-      const tc=getTeamClass(r.team);
       return `<tr>
-        <td>${r.team!=='No Team'?`<span class="team-tag ${tc}">${r.team}</span>`:'<span style="color:var(--text-faint)">Unassigned</span>'}</td>
+        <td>${r.team!=='No Team'?teamTagHtml(r.team):'<span style="color:var(--text-faint)">Unassigned</span>'}</td>
         <td style="font-weight:600">${r.total}</td>
         <td style="color:var(--accent);font-weight:600">${r.onTrack}</td>
         <td style="color:var(--warn);font-weight:600">${r.offTrack}</td>
@@ -1539,7 +1628,6 @@ function renderReportIndividual(){
     const mPris=state.priorities.filter(p=>p.owner===m);
     const weeksSubmitted=[...new Set(mPris.map(p=>p.weekOf))].length;
     const prisDone=mPris.filter(p=>p.done).length;
-    const tc=getTeamClass(mbr.team);
 
     html+=`<div class="report-member-block">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;flex-wrap:wrap">
@@ -1547,7 +1635,7 @@ function renderReportIndividual(){
         <div>
           <div style="font-size:16px;font-weight:600">${m}</div>
           <div style="display:flex;gap:4px;margin-top:3px">
-            ${mbr.team?`<span class="team-tag ${tc}">${mbr.team}</span>`:''}
+            ${teamTagHtml(mbr.team)}
             ${mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:''}
           </div>
         </div>
@@ -1627,12 +1715,11 @@ function renderReportQuarterEnd(){
     const m=mbr.name;
     const mr=qRocks.filter(r=>r.owner===m);
     if(!mr.length) return;
-    const tc=getTeamClass(mbr.team);
     html+=`<div class="report-member-block">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
         ${avatar(m)}
         <span style="font-size:14px;font-weight:600">${m}</span>
-        ${mbr.team?`<span class="team-tag ${tc}">${mbr.team}</span>`:''}
+        ${teamTagHtml(mbr.team)}
         ${mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:''}
         <span style="margin-left:auto;font-size:12px;color:var(--text-faint)">${mr.filter(r=>r.status==='on-track').length} on track &nbsp;·&nbsp; ${mr.filter(r=>r.status==='off-track').length} off track &nbsp;·&nbsp; ${mr.filter(r=>r.status==='complete').length} complete</span>
       </div>
@@ -1668,6 +1755,7 @@ async function saveData() {
     rocks: state.rocks,
     priorities: state.priorities,
     members: state.members,
+    teams: state.teams,
     nextId: state.nextId,
   };
   try {
@@ -1721,6 +1809,7 @@ async function boot() {
         state.rocks     = saved.rocks     ?? state.rocks;
         state.priorities= saved.priorities?? state.priorities;
         state.members   = saved.members   ?? state.members;
+        state.teams     = saved.teams     ?? state.teams;
         state.nextId    = saved.nextId    ?? state.nextId;
       }
     }
