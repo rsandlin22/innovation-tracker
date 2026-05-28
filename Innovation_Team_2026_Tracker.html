@@ -949,7 +949,7 @@ function renderDashboard(){
   ${!dc.roster?`<div class="roster-grid">${state.members.map(mbr=>{
     const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}">${mbr.team}</span>`:'';
     const dt=mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:'';
-    return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button></div>`;
+    return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button><button class="icon-btn" onclick="deleteMember(${mbr.id})" title="Remove member" style="color:var(--danger)">${SVG.trash}</button></div></div>`;
   }).join('')}</div>`:''}
   <div class="divider"></div>
   ${sh('rockStatus',`Rock Status — ${curQ}`)}
@@ -1315,6 +1315,22 @@ function saveModal(){
 }
 
 function editItem(type,id){openModal(type,id);}
+
+function deleteMember(id){
+  const mbr=state.members.find(m=>m.id===id);
+  if(!mbr) return;
+  const rocks=state.rocks.filter(r=>r.owner===mbr.name).length;
+  const goals=state.goals.filter(g=>g.owner===mbr.name).length;
+  const pris=state.priorities.filter(p=>p.owner===mbr.name).length;
+  const parts=[rocks&&`${rocks} rock${rocks!==1?'s':''}`,goals&&`${goals} goal${goals!==1?'s':''}`,pris&&`${pris} priorit${pris!==1?'ies':'y'}`].filter(Boolean);
+  const warning=parts.length?`\n\nNote: Their ${parts.join(', ')} will remain in the tool but will no longer be linked to an active team member.`:'';
+  if(!confirm(`Remove ${mbr.name} from the team?${warning}`)) return;
+  state.members=state.members.filter(m=>m.id!==id);
+  populateFilters();
+  renderDashboard();
+  scheduleSave();
+}
+
 function deleteItem(type,id){
   if(type==='goal') state.goals=state.goals.filter(g=>g.id!==id);
   if(type==='rock') state.rocks=state.rocks.filter(r=>r.id!==id);
