@@ -1526,9 +1526,9 @@ function renderReportWeeklySnapshot(){
 function renderReportOffTrack(){
   const offRocks=state.rocks.filter(r=>r.quarter===state.reportQ&&r.status==='off-track');
   const teamGroups={};
-  [...TEAMS,'No Team'].forEach(t=>teamGroups[t]=[]);
+  [...state.teams.map(t=>t.name),'No Team'].forEach(t=>teamGroups[t]=[]);
   offRocks.forEach(r=>{const mbr=state.members.find(m=>m.name===r.owner);teamGroups[mbr?.team||'No Team'].push(r);});
-  const teamsWithData=[...TEAMS,'No Team'].filter(t=>teamGroups[t].length>0);
+  const teamsWithData=[...state.teams.map(t=>t.name),'No Team'].filter(t=>teamGroups[t].length>0);
 
   let html=`<div class="report-section">
     <div class="report-header">
@@ -1566,7 +1566,7 @@ function renderReportOffTrack(){
 function renderReportTeamCompletion(){
   const rocks=state.rocks.filter(r=>r.quarter===state.reportQ);
   const results=[];
-  [...TEAMS,'No Team'].forEach(team=>{
+  [...state.teams.map(t=>t.name),'No Team'].forEach(team=>{
     const members=team==='No Team'?state.members.filter(m=>!m.team).map(m=>m.name):getTeamMembers(team);
     if(!members.length) return;
     const tr=rocks.filter(r=>members.includes(r.owner));
