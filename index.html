@@ -501,10 +501,12 @@
 
   /* Member roster grid on dashboard */
   .roster-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1.5rem; }
-  .roster-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow); }
+  .roster-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);position:relative;overflow:hidden; }
   .roster-info { flex:1;min-width:0; }
   .roster-name { font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
   .roster-tags { display:flex;gap:4px;flex-wrap:wrap;margin-top:3px; }
+  .roster-actions { position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;gap:4px;padding:0 8px 0 24px;background:linear-gradient(to right,transparent,var(--surface) 35%);opacity:0;transition:opacity .18s; }
+  .roster-card:hover .roster-actions { opacity:1; }
 
   /* Notes history */
   .note-item { border-left: 2px solid var(--border); padding: 5px 10px; margin-bottom: 6px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
@@ -949,7 +951,7 @@ function renderDashboard(){
   ${!dc.roster?`<div class="roster-grid">${state.members.map(mbr=>{
     const tt=mbr.team?`<span class="team-tag ${getTeamClass(mbr.team)}">${mbr.team}</span>`:'';
     const dt=mbr.isDirector?`<span class="team-tag team-leadership">Leadership</span>`:'';
-    return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button><button class="icon-btn" onclick="deleteMember(${mbr.id})" title="Remove member" style="color:var(--danger)">${SVG.trash}</button></div></div>`;
+    return `<div class="roster-card">${avatar(mbr.name)}<div class="roster-info"><div class="roster-name">${mbr.name}</div><div class="roster-tags">${tt}${dt}</div></div><div class="roster-actions"><button class="icon-btn" onclick="editItem('member',${mbr.id})" title="Edit">${SVG.pen}</button><button class="icon-btn" onclick="deleteMember(${mbr.id})" title="Remove member" style="color:var(--danger)">${SVG.trash}</button></div></div>`;
   }).join('')}</div>`:''}
   <div class="divider"></div>
   ${sh('rockStatus',`Rock Status — ${curQ}`)}
