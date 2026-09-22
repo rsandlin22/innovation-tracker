@@ -1812,9 +1812,11 @@ async function boot() {
         state.teams     = saved.teams     ?? state.teams;
         state.nextId    = saved.nextId    ?? state.nextId;
       }
+    } else {
+      showSaveIndicator('Could not load saved data', true);
     }
   } catch {
-    // Server not reachable — run with defaults
+    showSaveIndicator('Offline — showing defaults', true);
   }
   populateFilters();
   renderDashboard();
