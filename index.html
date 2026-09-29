@@ -649,6 +649,7 @@
   <div id="tab-updates" class="section">
     <div class="toolbar">
       <div class="toolbar-left">
+        <select class="filter-select" id="updates-filter-owner" onchange="syncOwnerFilter(this.value)"><option value="">All team members</option></select>
         <select class="filter-select" id="updates-filter-team" onchange="renderUpdates()">
           <option value="">All teams</option>
           <option value="Innovation">Innovation</option>
@@ -863,7 +864,7 @@ const state = {
 };
 
 function populateFilters(){
-  ['goals','rocks','weekly'].forEach(tab=>{
+  ['goals','rocks','updates','weekly'].forEach(tab=>{
     const sel=document.getElementById(tab+'-filter-owner');
     if(!sel) return;
     sel.innerHTML='<option value="">All team members</option>';
@@ -884,12 +885,13 @@ function populateTeamFilters(){
 
 function syncOwnerFilter(owner){
   state.filterOwner=owner;
-  ['goals','rocks','weekly'].forEach(tab=>{
+  ['goals','rocks','updates','weekly'].forEach(tab=>{
     const sel=document.getElementById(tab+'-filter-owner');
     if(sel) sel.value=owner;
   });
   if(document.getElementById('tab-goals').classList.contains('active')) renderGoals();
   else if(document.getElementById('tab-rocks').classList.contains('active')) renderRocks();
+  else if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
   else if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
 }
 
@@ -910,7 +912,7 @@ function clearWeeklyFilters(){
 }
 function clearUpdatesFilters(){
   document.getElementById('updates-filter-team').value='';
-  renderUpdates();
+  syncOwnerFilter('');
 }
 
 function toggleDashSection(key){
@@ -934,6 +936,8 @@ function switchTab(tab){
   });
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
+  // My Updates always opens with every member collapsed
+  if(tab==='updates') state.openMembers={};
   populateFilters();
   const fns={dashboard:renderDashboard,goals:renderGoals,rocks:renderRocks,updates:renderUpdates,weekly:renderWeekly,reports:renderReports};
   if(fns[tab]) fns[tab]();
@@ -1068,15 +1072,18 @@ function renderRocks(){
 
 function renderUpdates(){
   const el=document.getElementById('updates-content');
+  const owner=document.getElementById('updates-filter-owner')?.value||'';
   const team=document.getElementById('updates-filter-team')?.value||'';
   const tm=getTeamMembers(team);
   let html=`<p style="font-size:13px;color:var(--text-muted);margin-bottom:1.25rem">Update the status and notes for each of your big rocks below. Changes are reflected immediately on the dashboard.</p>`;
   state.members.forEach(mbr=>{
     const m=mbr.name;
+    if(owner&&m!==owner) return;
     if(team&&!tm.includes(m)) return;
     const mr=state.rocks.filter(r=>r.owner===m);
     if(!mr.length) return;
-    const isOpen=state.openMembers[m]!==false;
+    // Collapsed by default; a single filtered member is shown expanded
+    const isOpen=state.openMembers[m]??!!owner;
     const onT=mr.filter(r=>r.status==='on-track'||r.status==='complete').length;
     const key=m.replace(/ /g,'_');
     html+=`<div class="member-card">
@@ -1120,7 +1127,7 @@ function toggleMember(m){
   const chev=document.getElementById('chev-'+key);
   const isOpen=body.style.display!=='none';
   body.style.display=isOpen?'none':'block';
-  chev.style.transform=isOpen?'':'rotate(180deg)';
+  chev.classList.toggle('open',!isOpen);
   state.openMembers[m]=!isOpen;
 }
 
