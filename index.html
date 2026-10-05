@@ -715,6 +715,9 @@ const TEAM_COLORS = [
   {bg:'#F0DCF0',fg:'#5C145C'},
 ];
 
+// Calendar quarter for today (Jan–Mar = Q1 … Oct–Dec = Q4)
+function currentQuarter(){ return 'Q'+(Math.floor(new Date().getMonth()/3)+1); }
+
 function mi(n){ const m=state.members.find(m=>m.name===n); return m?m.colorIdx:-1; }
 function getTeamMembers(team){
   if(!team) return state.members.map(m=>m.name);
@@ -853,12 +856,12 @@ const state = {
   modalType: null,
   editId: null,
   openMembers: {},
-  dashQ: 'Q2',
+  dashQ: currentQuarter(),
   dashTeamFilter: [],
   dashCollapsed: {},
   filterOwner: '',
   activeReport: '',
-  reportQ: 'Q2',
+  reportQ: currentQuarter(),
   reportWeek: '',
   reportMember: '',
 };
@@ -944,7 +947,7 @@ function switchTab(tab){
 }
 
 function renderDashboard(){
-  const curQ = state.dashQ || 'Q2';
+  const curQ = state.dashQ || currentQuarter();
   const dashTeams = state.dashTeamFilter;
   const dc = state.dashCollapsed;
   const allRocks = state.rocks.filter(r => r.quarter === curQ);
@@ -1261,7 +1264,7 @@ function openModal(type, id=null, preOwner=''){
     const linkedGoalId = r.goalId || '';
     body=`<div class="field"><label>Owner</label><select id="f-owner" onchange="refreshRockGoals()">${memberOwnerOpts(sel)}</select></div>
     <div class="field"><label>Rock title</label><input type="text" id="f-title" value="${esc(r.title)}"></div>
-    <div class="field"><label>Quarter</label><select id="f-quarter"><option value="Q1"${r.quarter==='Q1'?' selected':''}>Q1</option><option value="Q2"${(!r.quarter||r.quarter==='Q2')?' selected':''}>Q2</option><option value="Q3"${r.quarter==='Q3'?' selected':''}>Q3</option><option value="Q4"${r.quarter==='Q4'?' selected':''}>Q4</option></select></div>
+    <div class="field"><label>Quarter</label><select id="f-quarter">${['Q1','Q2','Q3','Q4'].map(q=>`<option value="${q}"${q===(r.quarter||currentQuarter())?' selected':''}>${q}</option>`).join('')}</select></div>
     <div class="field"><label>Linked annual goal</label><select id="f-goalId">${buildGoalOpts(sel, linkedGoalId)}</select></div>
     <div class="field"><label>Status</label><select id="f-status"><option value="not-started"${(!r.status||r.status==='not-started')?' selected':''}>Not started</option><option value="on-track"${r.status==='on-track'?' selected':''}>On track</option><option value="off-track"${r.status==='off-track'?' selected':''}>Off track</option><option value="complete"${r.status==='complete'?' selected':''}>Complete</option></select></div>
     <div class="field"><label>Notes / Reflections</label><textarea id="f-notes">${r.notes||''}</textarea></div>`;
