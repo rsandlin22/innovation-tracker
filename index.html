@@ -1750,6 +1750,9 @@ function renderReportQuarterEnd(){
 // ── Persistence ──────────────────────────────────────────────────────────────
 
 let saveTimer = null;
+// Set when the initial load fails: saving then would overwrite the real
+// saved data with the built-in defaults, so saving is blocked instead
+let loadFailed = false;
 
 function scheduleSave() {
   clearTimeout(saveTimer);
@@ -1757,6 +1760,10 @@ function scheduleSave() {
 }
 
 async function saveData() {
+  if (loadFailed) {
+    showSaveIndicator('Not connected to the server — changes are NOT being saved', true, true);
+    return;
+  }
   const payload = {
     goals: state.goals,
     rocks: state.rocks,
@@ -1772,13 +1779,14 @@ async function saveData() {
       body: JSON.stringify(payload),
     });
     if (res.ok) showSaveIndicator('Saved');
-    else showSaveIndicator('Save failed', true);
+    else showSaveIndicator('Save failed — your last change was NOT saved', true, true);
   } catch {
-    showSaveIndicator('Offline — not saved', true);
+    showSaveIndicator('Offline — your last change was NOT saved', true, true);
   }
 }
 
-function showSaveIndicator(msg, error = false) {
+// sticky=true keeps the message on screen until the next successful save
+function showSaveIndicator(msg, error = false, sticky = false) {
   let el = document.getElementById('save-indicator');
   if (!el) {
     el = document.createElement('div');
@@ -1791,7 +1799,7 @@ function showSaveIndicator(msg, error = false) {
   el.style.color = error ? 'var(--danger)' : 'var(--done-text)';
   el.style.opacity = '1';
   clearTimeout(el._hide);
-  el._hide = setTimeout(() => { el.style.opacity = '0'; }, 2200);
+  if (!sticky) el._hide = setTimeout(() => { el.style.opacity = '0'; }, 2200);
 }
 
 // Wrap mutating functions to trigger autosave
@@ -1820,10 +1828,12 @@ async function boot() {
         state.nextId    = saved.nextId    ?? state.nextId;
       }
     } else {
-      showSaveIndicator('Could not load saved data', true);
+      loadFailed = true;
+      showSaveIndicator('Could not load saved data — changes will NOT be saved', true, true);
     }
   } catch {
-    showSaveIndicator('Offline — showing defaults', true);
+    loadFailed = true;
+    showSaveIndicator('Offline — showing defaults; changes will NOT be saved', true, true);
   }
   populateFilters();
   renderDashboard();
