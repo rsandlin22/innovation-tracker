@@ -8,10 +8,17 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '5mb' }));
 app.use(express.static(__dirname));
 
+// Railway injects DATABASE_URL, or only DATABASE_PUBLIC_URL when the public
+// connection string is the one linked to this service
+const connectionString = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  connectionString,
+  ssl: connectionString ? { rejectUnauthorized: false } : false
 });
+
+if (!connectionString) {
+  console.error('No DATABASE_URL or DATABASE_PUBLIC_URL set — nothing will be saved.');
+}
 
 async function initDb() {
   await pool.query(`
@@ -27,6 +34,16 @@ async function initDb() {
 
 initDb().catch(err => {
   console.error('DB init error (continuing anyway):', err.message);
+});
+
+// Reports whether the database is reachable, for diagnosing save problems
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ db: 'ok', configured: !!connectionString });
+  } catch (err) {
+    res.status(503).json({ db: 'error', configured: !!connectionString, error: err.message });
+  }
 });
 
 // Load saved data
