@@ -1,6 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
+const { mergeData } = require('./merge');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,14 @@ async function initDb() {
       data       JSONB NOT NULL,
       updated_at TIMESTAMPTZ DEFAULT NOW(),
       CONSTRAINT single_row CHECK (id = 1)
+    )
+  `);
+  // Copy of the data after every save, so lost entries can be recovered
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS app_data_history (
+      id       SERIAL PRIMARY KEY,
+      data     JSONB NOT NULL,
+      saved_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
   console.log('Database ready.');
@@ -57,19 +66,43 @@ app.get('/api/data', async (req, res) => {
   }
 });
 
-// Save data
+// Save data. The client sends the data it started from (base) and its
+// current data; only its own changes are merged into the latest saved data,
+// so people saving at the same time don't overwrite each other.
+const HISTORY_KEEP = 200;
 app.post('/api/data', async (req, res) => {
+  const { base, data } = req.body || {};
+  if (!base || !data) {
+    // An old copy of the page still open in someone's browser — saving its
+    // whole copy would wipe out other people's changes
+    return res.status(409).json({ ok: false, error: 'This page is out of date. Please refresh.' });
+  }
+  let client;
   try {
-    await pool.query(
+    client = await pool.connect();
+    await client.query('BEGIN');
+    const cur = await client.query('SELECT data FROM app_data WHERE id = 1 FOR UPDATE');
+    const merged = mergeData(cur.rows[0] ? cur.rows[0].data : null, base, data);
+    const json = JSON.stringify(merged);
+    await client.query(
       `INSERT INTO app_data (id, data, updated_at)
        VALUES (1, $1, NOW())
        ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = NOW()`,
-      [JSON.stringify(req.body)]
+      [json]
     );
-    res.json({ ok: true });
+    await client.query('INSERT INTO app_data_history (data) VALUES ($1)', [json]);
+    await client.query(
+      'DELETE FROM app_data_history WHERE id <= (SELECT MAX(id) FROM app_data_history) - $1',
+      [HISTORY_KEEP]
+    );
+    await client.query('COMMIT');
+    res.json({ ok: true, data: merged });
   } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(() => {});
     console.error('POST /api/data error:', err.message);
     res.status(500).json({ ok: false, error: err.message });
+  } finally {
+    if (client) client.release();
   }
 });
 
