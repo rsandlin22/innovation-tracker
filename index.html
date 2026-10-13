@@ -704,6 +704,7 @@
   </div>
 </div>
 
+<script src="merge.js"></script>
 <script>
 const AVATAR_BG = ['#EDE9FB','#D8F0E6','#FDE8DC','#FDE8EF','#DDEAF8','#FEF1D8','#E5F1DC','#F0EAD6','#DCF0F0','#F0DCF0'];
 const AVATAR_FG = ['#4A3FA0','#145C38','#7A2E10','#7A1A3C','#174E8A','#6B3E06','#285210','#5C4A1A','#145C5C','#5C145C'];
@@ -714,6 +715,11 @@ const TEAM_COLORS = [
   {bg:'#FDE8DC',fg:'#7A2E10'},{bg:'#E5F1DC',fg:'#285210'},{bg:'#FEF1D8',fg:'#6B3E06'},
   {bg:'#F0DCF0',fg:'#5C145C'},
 ];
+
+// IDs are time-based so items added by different people at the same time
+// never share an ID
+let lastId = 0;
+function newId(){ lastId = Math.max(Date.now()*1000 + Math.floor(Math.random()*1000), lastId+1); return lastId; }
 
 // Calendar quarter for today (Jan–Mar = Q1 … Oct–Dec = Q4)
 function currentQuarter(){ return 'Q'+(Math.floor(new Date().getMonth()/3)+1); }
@@ -1322,20 +1328,20 @@ function saveModal(){
   if(type==='goal'){
     const data={owner:document.getElementById('f-owner').value,title:document.getElementById('f-title').value,category:document.getElementById('f-category').value,metric:document.getElementById('f-metric').value,desc:document.getElementById('f-desc').value,status:document.getElementById('f-status').value,progress:parseInt(document.getElementById('f-progress').value)};
     if(!data.title) return;
-    if(id) Object.assign(state.goals.find(g=>g.id===id),data); else state.goals.push({id:state.nextId++,...data});
+    if(id) Object.assign(state.goals.find(g=>g.id===id),data); else state.goals.push({id:newId(),...data});
     renderGoals();
   } else if(type==='rock'){
     const gId=document.getElementById('f-goalId').value;
     const data={owner:document.getElementById('f-owner').value,title:document.getElementById('f-title').value,quarter:document.getElementById('f-quarter').value,goalId:(gId&&gId!=='other')?parseInt(gId):null,status:document.getElementById('f-status').value,notes:document.getElementById('f-notes').value};
     if(!data.title) return;
-    if(id) Object.assign(state.rocks.find(r=>r.id===id),data); else state.rocks.push({id:state.nextId++,...data});
+    if(id) Object.assign(state.rocks.find(r=>r.id===id),data); else state.rocks.push({id:newId(),...data});
     renderRocks();
     if(document.getElementById('tab-updates').classList.contains('active')) renderUpdates();
   } else if(type==='priority'){
     const rId=document.getElementById('f-rockId').value;
     const data={owner:document.getElementById('f-owner').value,text:document.getElementById('f-title').value,weekOf:document.getElementById('f-week').value||'2026-05-11',rockId:(rId&&rId!=='other')?parseInt(rId):null,done:false};
     if(!data.text) return;
-    if(id) Object.assign(state.priorities.find(p=>p.id===id),data); else state.priorities.push({id:state.nextId++,...data});
+    if(id) Object.assign(state.priorities.find(p=>p.id===id),data); else state.priorities.push({id:newId(),...data});
     renderWeekly();
   } else if(type==='member'){
     const name=document.getElementById('f-name').value.trim();
@@ -1354,7 +1360,7 @@ function saveModal(){
       }
     } else {
       const colorIdx=state.members.length%AVATAR_BG.length;
-      state.members.push({id:state.nextId++,name,team,isDirector,colorIdx});
+      state.members.push({id:newId(),name,team,isDirector,colorIdx});
     }
   }
   closeModal(); populateFilters();
@@ -1395,7 +1401,7 @@ function addTeamInline(){
   }
   input.style.borderColor=''; input.title='';
   const colorIdx=state.teams.length%TEAM_COLORS.length;
-  state.teams.push({id:state.nextId++,name,colorIdx});
+  state.teams.push({id:newId(),name,colorIdx});
   input.value='';
   document.getElementById('modal-body').innerHTML=buildTeamsModalBody();
   document.getElementById('f-new-team').focus();
@@ -1756,6 +1762,33 @@ let saveTimer = null;
 // Set when the initial load fails: saving then would overwrite the real
 // saved data with the built-in defaults, so saving is blocked instead
 let loadFailed = false;
+// The data as last loaded from / saved to the server. Saves send it along so
+// the server applies only this browser's changes on top of everyone else's.
+let baseData = null;
+let saving = false;
+let saveAgain = false;
+
+function currentData() {
+  return JSON.parse(JSON.stringify({
+    goals: state.goals,
+    rocks: state.rocks,
+    priorities: state.priorities,
+    members: state.members,
+    teams: state.teams,
+    nextId: state.nextId,
+  }));
+}
+
+function applyData(d) {
+  // Own copy: edits must never change baseData through shared objects
+  d = JSON.parse(JSON.stringify(d));
+  state.goals      = d.goals      ?? state.goals;
+  state.rocks      = d.rocks      ?? state.rocks;
+  state.priorities = d.priorities ?? state.priorities;
+  state.members    = d.members    ?? state.members;
+  state.teams      = d.teams      ?? state.teams;
+  state.nextId     = d.nextId     ?? state.nextId;
+}
 
 function scheduleSave() {
   clearTimeout(saveTimer);
@@ -1767,26 +1800,72 @@ async function saveData() {
     showSaveIndicator('Not connected to the server — changes are NOT being saved', true, true);
     return;
   }
-  const payload = {
-    goals: state.goals,
-    rocks: state.rocks,
-    priorities: state.priorities,
-    members: state.members,
-    teams: state.teams,
-    nextId: state.nextId,
-  };
+  if (saving) { saveAgain = true; return; }
+  saving = true;
+  const sent = currentData();
   try {
     const res = await fetch('/api/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ base: baseData, data: sent }),
     });
-    if (res.ok) showSaveIndicator('Saved');
-    else showSaveIndicator('Save failed — your last change was NOT saved', true, true);
+    if (res.ok) {
+      const { data: merged } = await res.json();
+      // Take in other people's changes, keeping any edits made here while saving
+      applyData(mergeData(merged, sent, currentData()));
+      baseData = merged;
+      rerenderIfIdle();
+      showSaveIndicator('Saved');
+    } else if (res.status === 409) {
+      showSaveIndicator('This page is out of date — please refresh before making changes', true, true);
+    } else {
+      showSaveIndicator('Save failed — your last change was NOT saved', true, true);
+    }
   } catch {
     showSaveIndicator('Offline — your last change was NOT saved', true, true);
+  } finally {
+    saving = false;
+    if (saveAgain) { saveAgain = false; saveData(); }
   }
 }
+
+// Pick up other people's changes without a page refresh
+async function refreshData() {
+  // A save already queued is fine: it will send the refreshed data as its base
+  if (loadFailed || saving) return;
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok || saving) return;
+    const latest = await res.json();
+    if (!latest) return;
+    const before = JSON.stringify(currentData());
+    applyData(mergeData(latest, baseData, currentData()));
+    baseData = latest;
+    if (JSON.stringify(currentData()) !== before) rerenderIfIdle();
+  } catch {}
+}
+
+// Re-draw the open tab with fresh data, unless someone is mid-edit
+let rerenderPending = false;
+function rerenderIfIdle() {
+  const a = document.activeElement;
+  // Typed-but-unsaved text on My Updates would be lost by a re-draw
+  const unsavedText = [...document.querySelectorAll('#updates-content .update-textarea')]
+      .some(t => t.value !== (state.rocks.find(r => 'notes-' + r.id === t.id)?.notes || '')) ||
+    [...document.querySelectorAll('#updates-content .note-input')].some(t => t.value.trim());
+  const editing = document.getElementById('modal-bg').classList.contains('open') || unsavedText ||
+    (a && ['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName));
+  if (editing) { rerenderPending = true; return; }
+  rerenderPending = false;
+  populateFilters();
+  const tab = document.querySelector('.section.active')?.id.replace('tab-', '');
+  const fns = {dashboard:renderDashboard,goals:renderGoals,rocks:renderRocks,updates:renderUpdates,weekly:renderWeekly,reports:renderReports};
+  if (fns[tab]) fns[tab]();
+}
+setInterval(() => { refreshData(); if (rerenderPending) rerenderIfIdle(); }, 30000);
+document.addEventListener('focusout', () => setTimeout(() => { if (rerenderPending) rerenderIfIdle(); }, 0));
+window.addEventListener('focus', refreshData);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshData(); });
 
 // sticky=true keeps the message on screen until the next successful save
 function showSaveIndicator(msg, error = false, sticky = false) {
@@ -1822,14 +1901,9 @@ async function boot() {
     const res = await fetch('/api/data');
     if (res.ok) {
       const saved = await res.json();
-      if (saved) {
-        state.goals     = saved.goals     ?? state.goals;
-        state.rocks     = saved.rocks     ?? state.rocks;
-        state.priorities= saved.priorities?? state.priorities;
-        state.members   = saved.members   ?? state.members;
-        state.teams     = saved.teams     ?? state.teams;
-        state.nextId    = saved.nextId    ?? state.nextId;
-      }
+      if (saved) applyData(saved);
+      // Nothing saved yet → the built-in defaults are what everyone starts from
+      baseData = saved || currentData();
     } else {
       loadFailed = true;
       showSaveIndicator('Could not load saved data — changes will NOT be saved', true, true);
